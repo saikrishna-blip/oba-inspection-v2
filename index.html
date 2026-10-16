@@ -909,6 +909,8 @@ img{ max-width:100%; display:block; }
     <div class="hdr-actions">
       <span id="hdrUser" class="pill pill-neutral hide-sm"></span>
       <button id="btnTheme" class="theme-btn" title="Toggle light / dark theme" aria-label="Toggle theme">◐</button>
+      <button id="btnNavModels" class="btn btn-ghost btn-sm" hidden>⚙ Models</button>
+      <button id="btnNavPoints" class="btn btn-ghost btn-sm" hidden>✔ Points</button>
       <button id="btnNavAnalytics" class="btn btn-ghost btn-sm" hidden>📈 Analytics</button>
       <button id="btnNavReport" class="btn btn-ghost btn-sm">🖨 Report</button>
       <button id="btnHelp" class="btn btn-ghost btn-sm btn-icon" title="Standard reference" aria-label="Standard reference">?</button>
@@ -992,28 +994,54 @@ const LOGO_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAADICAM
 
 /* ============================================================
    CONFIG
+
+   Only infrastructure constants live here. Every business value -
+   models, model codes, lot/sample sizes, acceptance numbers, black-dot
+   thresholds and the inspection-point list - comes from the backend and
+   is edited in the portal under Models & Standards.
    ============================================================ */
 const CFG = {
-  lotSize: 90,
-  sampleSize: 13,
-  bdMaxMm: 2.4,
-  minorAccepted: 1,
-  majorAccepted: 0,
   sessionHours: 12,
-  defaultApi: ''
-};
+  defaultApi: '',
 
-const MODEL_CODE = {
-  LH1G:     '1217',
-  LH3G:     '1218',
-  LH3G_NEW: '1213'
-};
+  /* Fallback used ONLY when the backend answers no models at all (a legacy
+     script that has not been upgraded). Everything here is a placeholder so
+     the portal stays usable; configure real models in the UI. */
+  fallbackModel: {
+    modelKey: 'DEFAULT',
+    label: 'Default model',
+    serialPrefix: '',
+    prefixLen: 0,
+    monthPos: 5,
+    monthLen: 4,
+    seqLen: 7,
+    totalLen: 15,
+    lotSize: 90,
+    sampleSize: 13,
+    minorAc: 1,
+    majorAc: 0,
+    pointKeys: ['AES', 'GEN', 'FUNC', 'SCR', 'BDOT']
+  },
 
-const ALL_MODELS = [
-  { key:'LH1G',     code:'1217', label:'LH1G (1217)' },
-  { key:'LH3G',     code:'1218', label:'LH3G (1218)' },
-  { key:'LH3G_NEW', code:'1213', label:'LH3G New (1213)' }
-];
+  /* Fallback inspection points, matching the fallback model above. */
+  fallbackPoints: [
+    { pointKey:'AES',  label:'Aesthetic',   shortLabel:'Aes',  type:'toggle',
+      severity:'minor', required:true, sortOrder:10, options:'', minValue:'', maxValue:'' },
+    { pointKey:'GEN',  label:'General',     shortLabel:'Gen',  type:'toggle',
+      severity:'major', required:true, sortOrder:20, options:'', minValue:'', maxValue:'' },
+    { pointKey:'FUNC', label:'Functional',  shortLabel:'Func', type:'toggle',
+      severity:'major', required:true, sortOrder:30, options:'', minValue:'', maxValue:'' },
+    { pointKey:'SCR',  label:'Screen',      shortLabel:'Scr',  type:'toggle',
+      severity:'major', required:true, sortOrder:40, options:'', minValue:'', maxValue:'' },
+    { pointKey:'BDOT', label:'Black dot',   shortLabel:'BD',   type:'lookup',
+      severity:'major', required:true, sortOrder:50, options:'',
+      minValue:'', maxValue:'',
+      helpText:'Not visible at 2 m is acceptable. D must not exceed 2.4 mm; ' +
+               'a small dot (D <= 1.28 mm) is acceptable when N <= 3 and ' +
+               'DS >= 15 mm; a larger dot is judged against the per-area ' +
+               'limits. Edit this in Models & Standards.' }
+  ]
+};
 
 const LS = {
   api:      'oba_api',
@@ -1034,10 +1062,14 @@ const S = {
   token: null,         // optional session token from hardened backend
   caps: {},            // backend capability map
   batches: [],
+  models: [],          // configured models (from the backend)
+  points: [],          // inspection-point library (from the backend)
   activeLot: null,
+  activeModel: null,   // resolved model for the active lot
+  activePoints: [],    // ordered points that apply to the active lot
   samples: [],
   expanded: null,
-  view: 'dashboard',   // dashboard | inspection
+  view: 'dashboard',   // dashboard | inspection | models | points
   loading: false,
   demo: false,
   scan: null           // active scanner controller
@@ -1421,9 +1453,9 @@ async function loadBatches(opts){
         return {
           batchName:      k.kitName || k.batchName || '',
           lotNumber:      k.lotNumber || '',
-          lotSize:        num(k.lotSize, CFG.lotSize),
-          sampleSize:     num(k.sampleSize, CFG.sampleSize),
-          bdMax:          num(k.bdMax, CFG.bdMaxMm),
+          lotSize:        num(k.lotSize, 0),
+          sampleSize:     num(k.sampleSize, 0),
+          bdMax:          num(k.bdMax, 0),
           status:         k.status || 'Open',
           createdBy:      k.createdBy || '',
           createdAt:      k.createdAt || '',
@@ -1450,9 +1482,9 @@ function normalizeLot(b){
   return {
     batchName:      b.batchName || b.kitName || '',
     lotNumber:      b.lotNumber || '',
-    lotSize:        num(b.lotSize, CFG.lotSize),
-    sampleSize:     num(b.sampleSize, CFG.sampleSize),
-    bdMax:          num(b.bdMax, CFG.bdMaxMm),
+    lotSize:        num(b.lotSize, 0),
+    sampleSize:     num(b.sampleSize, 0),
+    bdMax:          num(b.bdMax, 0),
     status:         b.status || 'Open',
     createdBy:      b.createdBy || '',
     createdAt:      b.createdAt || '',
@@ -1518,89 +1550,467 @@ function listDrafts(){
 }
 
 /* ============================================================
-   DOMAIN LOGIC  — preserved from the original implementation
+   MODEL + POINT RESOLUTION
+
+   Everything below reads from S.models / S.points, which the backend
+   supplies and the Models & Standards screens edit. No model code, lot
+   size, acceptance number or threshold is hardcoded.
    ============================================================ */
 
-/** 15-digit serial: 4 model + 4 MMYY + 7 sequence */
-function validateSerial(serial, model, pmc, used, pmc2){
+/** The configured models, or the minimal fallback when none exist yet. */
+function allModels(){
+  return S.models && S.models.length ? S.models : [CFG.fallbackModel];
+}
+
+function allPoints(){
+  return S.points && S.points.length ? S.points : CFG.fallbackPoints;
+}
+
+function findModel(key){
+  return allModels().filter(function(m){ return m.modelKey === key; })[0] || null;
+}
+
+function findPoint(key){
+  return allPoints().filter(function(p){ return p.pointKey === key; })[0] || null;
+}
+
+/** Human label for a model, falling back to its key. */
+function modelLabel(key){
+  const m = findModel(key);
+  return m ? (m.label || m.modelKey) : (key || '—');
+}
+
+/**
+ * The points that apply to a model: its own selected keys, in sortOrder,
+ * with any missing ones skipped. Called on every render, so an admin edit
+ * takes effect without reloading.
+ */
+function pointsForModel(model){
+  if(!model) return [];
+  const keys = model.pointKeys || [];
+  const lib = allPoints();
+  return keys
+    .map(function(k){ return lib.filter(function(p){ return p.pointKey === k; })[0]; })
+    .filter(Boolean)
+    .sort(function(a, b){ return num(a.sortOrder, 0) - num(b.sortOrder, 0); });
+}
+
+/** The model for the lot currently being inspected. */
+function activeModelDef(){
+  if(S.activeModel) return S.activeModel;
+  const m = S.activeLot ? findModel(S.activeLot.model) : null;
+  return m || CFG.fallbackModel;
+}
+
+/* ============================================================
+   SERIAL VALIDATION  — format comes from the model
+   ============================================================ */
+
+/**
+ * Validate a serial against the active model's configured format.
+ * The model supplies total length and the position/length of the prefix
+ * (model code) and the production month, so nothing here assumes 4+4+7.
+ */
+function validateSerial(serial, modelDef, pmc, used, pmc2){
+  const m = modelDef || activeModelDef();
   const s = String(serial || '').trim().toUpperCase();
-  if(!/^\d{15}$/.test(s)) return 'Must be exactly 15 digits';
-  if(/^0{15}$/.test(s))  return 'Serial cannot be all zeros';
 
-  const expected = MODEL_CODE[model] || '';
-  if(expected && s.substring(0,4) !== expected){
-    const lbl = (ALL_MODELS.filter(function(m){ return m.key === model; })[0] || {}).label || model;
-    return 'Model code must be ' + expected + ' for ' + lbl + ' — got ' + s.substring(0,4);
+  const total = num(m.totalLen, 15);
+  if(!new RegExp('^\\d{' + total + '}$').test(s)){
+    return 'Must be exactly ' + total + ' digits';
+  }
+  if(/^0+$/.test(s)) return 'Serial cannot be all zeros';
+
+  /* Model / prefix code, if the model defines one. */
+  const prefixLen = num(m.prefixLen, 0);
+  if(prefixLen > 0 && m.serialPrefix){
+    const got = s.substring(0, prefixLen);
+    if(got !== String(m.serialPrefix)){
+      return 'Model code must be ' + m.serialPrefix + ' for ' + (m.label || m.modelKey) +
+             ' — got ' + got;
+    }
   }
 
-  let a = String(pmc || '').trim();  if(a.length === 3) a = '0' + a;
-  let b = String(pmc2 || '').trim(); if(b.length === 3) b = '0' + b;
-  const serialMonth = s.substring(4,8);
-  const valid = [a,b].filter(Boolean);
-  if(valid.length && valid.indexOf(serialMonth) === -1){
-    const labels = valid.map(function(m){ return m + ' (' + mmyyDisp(m) + ')'; }).join(' or ');
-    return 'Month code must be ' + labels + ' — got ' + serialMonth;
-  }
-  const mm = parseInt(s.substring(4,6), 10);
-  if(isNaN(mm) || mm < 1 || mm > 12) return 'Month digits invalid (01–12)';
-  if(!/^\d{7}$/.test(s.substring(8))) return 'Last 7 digits must be numeric';
+  /* Production month block. */
+  const monthPos = num(m.monthPos, 1);   /* 1-based */
+  const monthLen = num(m.monthLen, 4);
+  if(monthLen > 0){
+    const from = monthPos - 1;
+    const serialMonth = s.substring(from, from + monthLen);
 
-  const modelCode = s.substring(0,4);
-  const known = Object.keys(MODEL_CODE).map(function(k){ return MODEL_CODE[k]; });
-  if(known.indexOf(modelCode) === -1){
-    return 'Unknown model prefix "' + modelCode + '" (expected ' + known.join('/') + ')';
+    let a = String(pmc || '').trim();  if(a.length === 3) a = '0' + a;
+    let b = String(pmc2 || '').trim(); if(b.length === 3) b = '0' + b;
+    const valid = [a, b].filter(Boolean);
+    if(valid.length && valid.indexOf(serialMonth) === -1){
+      const labels = valid.map(function(x){ return x + ' (' + mmyyDisp(x) + ')'; }).join(' or ');
+      return 'Month code must be ' + labels + ' — got ' + serialMonth;
+    }
+    if(monthLen >= 2){
+      const mmRaw = serialMonth.substring(monthLen - 2);
+      const mm = parseInt(mmRaw, 10);
+      if(isNaN(mm) || mm < 1 || mm > 12){
+        return 'Month digits invalid (last 2 must be 01–12), got ' + mmRaw;
+      }
+    }
+  }
+
+  /* Sequence block must be numeric. */
+  const seqLen = num(m.seqLen, 7);
+  if(seqLen > 0){
+    const seq = s.substring(total - seqLen);
+    if(!new RegExp('^\\d{' + seqLen + '}$').test(seq)){
+      return 'Last ' + seqLen + ' digits must be numeric';
+    }
   }
 
   if((used || []).indexOf(s) !== -1) return 'Duplicate serial within this lot';
   return '';
 }
 
-/** IS 2500 black-dot evaluation (unchanged rule set) */
-function evalBD(s){
-  if(s.bdNoDot)     return { ok:true,  reason:'No black dot — acceptable' };
-  if(!s.bdVisible)  return { ok:true,  reason:'Not visible at 2 m — acceptable at any quantity' };
+/** A representative serial for placeholders, built from the model format. */
+function serialPlaceholder(modelDef){
+  const m = modelDef || activeModelDef();
+  const total = num(m.totalLen, 15);
+  const prefix = String(m.serialPrefix || '');
+  const pmc = (S.activeLot && S.activeLot.prodMonthCode) || '';
+  let out = prefix;
+  /* pad so that prefix + month + sequence fills `total` */
+  while(out.length < num(m.monthPos, 1) - 1) out += '?';
+  out += pmc || '0'.repeat(num(m.monthLen, 4));
+  while(out.length < total) out += '0';
+  return out.slice(0, total).replace(/\d(?=\d{1}$)/, '1');
+}
 
-  const D  = parseFloat(s.bdD)  || 0;
-  const N  = parseInt(s.bdN, 10) || 0;
-  const DS = parseFloat(s.bdDS) || 0;
+/* ============================================================
+   INSPECTION-POINT EVALUATION
 
-  if(!s.bdD) return { ok:false, reason:'Enter the dot diameter D to evaluate' };
-  if(D > CFG.bdMaxMm) return { ok:false, reason:'D=' + D + ' mm > ' + CFG.bdMaxMm + ' mm — FAIL (major)' };
-  if(N > 3)  return { ok:false, reason:'N=' + N + ' > 3 — FAIL' };
-  if(!s.bdDS) return { ok:false, reason:'Enter the dot separation DS to evaluate' };
-  if(DS < 15) return { ok:false, reason:'DS=' + DS + ' mm < 15 mm — FAIL' };
-  if(D <= 1.28) return { ok:true, reason:'D=' + D + ' mm ≤ 1.28 mm, N=' + N + ', DS=' + DS + ' mm — OK' };
+   A point is one of:
+     toggle  - pass / fail button.               value: boolean
+     numeric - number box, pass within min/max.  value: number
+     select  - dropdown, allowed options listed. value: string
+     text    - free text, never fails.           value: string
+     lookup  - several parameters compared
+               against a rule table stored on
+               the point.                        value: object
+   ============================================================ */
 
-  const area = s.bdArea || 'A';
-  if(area === 'A')   return N <= 1 ? { ok:true, reason:'D=' + D + ' mm in Area A, N=' + N + ' ≤ 1 — OK' }
-                                   : { ok:false, reason:'Area A: N=' + N + ' > 1 — FAIL' };
-  if(area === 'B')   return N <= 3 ? { ok:true, reason:'D=' + D + ' mm in Area B, N=' + N + ' ≤ 3 — OK' }
-                                   : { ok:false, reason:'Area B: N=' + N + ' > 3 — FAIL' };
-  return N <= 3 ? { ok:true, reason:'D=' + D + ' mm in Area A+B, N=' + N + ' ≤ 3 — OK' }
-                : { ok:false, reason:'Area A+B: N=' + N + ' > 3 — FAIL' };
+/** Parse a point's JSON config defensively - bad JSON must not break a lot. */
+function parseJson(raw, fallback){
+  if(raw === null || raw === undefined || raw === '') return fallback;
+  if(typeof raw === 'object') return raw;
+  try{ return JSON.parse(String(raw)); }
+  catch(e){ return fallback; }
+}
+
+/**
+ * Alias the stored measurement keys to the short names commonly used in rule
+ * expressions, so a table may say either `D` or `diameter`.
+ *   D  diameter      N  count      DS  separation
+ */
+function ruleAliases(raw){
+  const out = {};
+  Object.keys(raw || {}).forEach(function(k){ out[k] = raw[k]; });
+  if(out.diameter   !== undefined) out.D  = out.diameter;
+  if(out.count      !== undefined) out.N  = out.count;
+  if(out.separation !== undefined) out.DS = out.separation;
+  return out;
+}
+
+/** The rule table for a lookup point. */
+function lookupRules(point){
+  const cfg = parseJson(point.lookup, parseJson(point.options, null));
+  if(!cfg) return [];
+  if(Array.isArray(cfg)) return cfg;
+  if(Array.isArray(cfg.rules)) return cfg.rules;
+  return [];
+}
+
+/**
+ * Condition-expression evaluator for a single rule.
+ *
+ * Grammar: `VAR OP VALUE [&& VAR OP VALUE ...]` where OP is one of
+ * < <= > >= = == and VALUE is a number, an unquoted word (`A`, `A+B`) or a
+ * quoted string. Comparisons are numeric when both sides are numeric and
+ * case-insensitive text otherwise, so `area == A` works as written.
+ */
+function evalCondition(expr, vars){
+  if(expr === null || expr === undefined || String(expr).trim() === '') return true;
+  /* `*` (or `true`) always matches, for a terminal catch-all rule. */
+  const bare = String(expr).trim();
+  if(bare === '*' || bare.toLowerCase() === 'true') return true;
+
+  /* OR of ANDs, with optional parentheses. Parentheses are not needed to
+     resolve the expression because `&&` binds tighter than `||`, so the
+     grouping can simply be dropped. */
+  const text = String(expr).replace(/[()]/g, ' ');
+  const orGroups = text.split(/\s*(?:\|\||\bor\b)\s*/i);
+
+  return orGroups.some(function(group){
+    const parts = group.split(/\s*(?:&&|\band\b)\s*/i);
+    return parts.every(function(part){
+      const mm = part.match(
+        /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*(<=|>=|==|=|<|>)\s*('([^']*)'|"([^"]*)"|(-?\d+(?:\.\d+)?)|([A-Za-z_][A-Za-z0-9_+.]*))\s*$/
+      );
+      if(!mm) return false;
+
+      const raw = vars[mm[1]];
+      /* 4 = 'text', 5 = "text", 6 = number, 7 = identifier.
+         An identifier may be another variable (`D > maxD`) or a constant
+         (`area == A`); resolve it from the scope when it exists there. */
+      let text = (mm[4] !== undefined) ? mm[4]
+               : (mm[5] !== undefined) ? mm[5]
+               : (mm[6] !== undefined) ? mm[6]
+               : null;
+      if(text === null && mm[7] !== undefined){
+        text = (vars[mm[7]] !== undefined && vars[mm[7]] !== null) ? vars[mm[7]] : mm[7];
+      }
+
+      const lhsNum = Number(raw);
+      const rhsNum = text === null ? NaN : Number(text);
+      const numeric = raw !== undefined && raw !== null && raw !== '' &&
+                      !isNaN(lhsNum) && text !== null && !isNaN(rhsNum);
+
+      const op = mm[2];
+      if(numeric){
+        switch(op){
+          case '<':  return lhsNum <  rhsNum;
+          case '<=': return lhsNum <= rhsNum;
+          case '>':  return lhsNum >  rhsNum;
+          case '>=': return lhsNum >= rhsNum;
+          default:   return lhsNum === rhsNum;
+        }
+      }
+      /* Text comparison; only equality is meaningful. */
+      if(op !== '=' && op !== '==') return false;
+      if(raw === undefined || raw === null || text === null) return false;
+      return String(raw).toUpperCase() === String(text).toUpperCase();
+    });
+  });
+}
+
+/** First rule still in play once `when` conditions are applied. */
+function matchingRule(rules, vars){
+  for(let i = 0; i < rules.length; i++){
+    if(evalCondition(rules[i].when, vars)) return rules[i];
+  }
+  return null;
+}
+
+function ruleLimit(rule, name){
+  if(!rule || rule[name] === undefined || rule[name] === '') return null;
+  const v = parseFloat(rule[name]);
+  return isNaN(v) ? null : v;
+}
+
+/**
+ * Evaluate one inspection point for one sample.
+ * Returns { ok, reason, skipped } — never throws.
+ */
+function evalPoint(point, value){
+  const type = point.type || 'toggle';
+  const label = point.label || point.pointKey;
+
+  if(type === 'text'){
+    return { ok:true, reason:'', skipped:true };
+  }
+
+  if(type === 'toggle'){
+    /* An unanswered toggle is neutral; only an explicit fail counts. */
+    if(value === undefined || value === null || value === ''){
+      return { ok:true, reason:'', skipped:true };
+    }
+    const pass = (value === true || value === 'true' || value === 'Pass' || value === 'pass');
+    return pass ? { ok:true, reason:'' } : { ok:false, reason:label + ' failed' };
+  }
+
+  if(type === 'numeric'){
+    if(value === '' || value === undefined || value === null){
+      return { ok:true, reason:'', skipped:true };
+    }
+    const v = parseFloat(value);
+    if(isNaN(v)) return { ok:false, reason:label + ': not a number' };
+    const min = ruleLimit(point, 'minValue');
+    const max = ruleLimit(point, 'maxValue');
+    if(point.condition){
+      const ok = evalCondition(point.condition, { value:v, min:min === null ? v : min,
+                                                   max:max === null ? v : max });
+      return ok ? { ok:true, reason:'' }
+                : { ok:false, reason:label + '=' + v +
+                    ' outside allowed condition (' + point.condition + ')' };
+    }
+    if(min !== null && v < min) return { ok:false, reason:label + '=' + v + ' below ' + min };
+    if(max !== null && v > max) return { ok:false, reason:label + '=' + v + ' above ' + max };
+    return { ok:true, reason:'' };
+  }
+
+  if(type === 'select'){
+    if(value === '' || value === undefined || value === null){
+      return { ok:true, reason:'', skipped:true };
+    }
+    const cfg = parseJson(point.options, null);
+    let failing = [];
+    if(cfg && Array.isArray(cfg.failing)) failing = cfg.failing.map(String);
+    else if(cfg && Array.isArray(cfg.options)) {
+      failing = cfg.options.filter(function(o){ return o && o.fail; })
+                          .map(function(o){ return String(o.value); });
+    }
+    const bad = failing.indexOf(String(value)) !== -1;
+    return bad ? { ok:false, reason:label + ': ' + value }
+               : { ok:true, reason:'' };
+  }
+
+  if(type === 'lookup'){
+    const rules = lookupRules(point);
+    const raw = (value && typeof value === 'object') ? value : {};
+
+    /* Each rule is tested against its OWN merged scope: the measurement values
+       plus that rule's thresholds. Merging every rule's thresholds up front
+       would let a later rule's limit leak into an earlier rule's condition. */
+    const scopeFor = function(rule){
+      const v = Object.assign({}, ruleAliases(raw));
+      Object.keys(rule || {}).forEach(function(k){
+        if(v[k] === undefined) v[k] = rule[k];
+      });
+      /* maxD arrives from the sheet as a string, and `2 <= "2.4"` is a STRING
+         comparison that fails. Coerce so the bound compares numerically. */
+      if(v.maxD === undefined || v.maxD === ''){
+        v.maxD = point.maxValue;
+      }
+      if(v.maxD !== undefined && v.maxD !== '' && !isNaN(Number(v.maxD))){
+        v.maxD = Number(v.maxD);
+      }
+      return v;
+    };
+
+    let rule = null, vars = null;
+    for(let i = 0; i < rules.length; i++){
+      const scope = scopeFor(rules[i]);
+      if(evalCondition(rules[i].when, scope)){ rule = rules[i]; vars = scope; break; }
+    }
+
+    if(!rule){
+      /* A row the inspector has not filled in yet is NOT a failure — returning
+         FAIL here would paint every fresh row red before any measurement. */
+      const blank = (raw.diameter === undefined || raw.diameter === '') &&
+                    (raw.count    === undefined || raw.count    === '');
+      if(blank){
+        return { ok:true, skipped:true,
+                 reason:'Enter the measurements to evaluate this point' };
+      }
+      /* Measurements present but nothing matched: fail CLOSED. A silently
+         passing inspection gate is worse than a visible error. */
+      return { ok:false, reason:label + ': no rule matched this measurement — ' +
+               'check the rule table (unmatched rules fail by design)' };
+    }
+
+    /* accept:true  -> passes outright.
+       limits only  -> fails if any supplied limit is exceeded.
+       ruleLimit() coerces to a number (or null), so these compares stay numeric
+       even when the sheet supplied text. */
+    if(rule.accept === true || rule.accept === 'true'){
+      return { ok:true, reason:rule.reason || (label + ': acceptable') };
+    }
+
+    const maxD  = ruleLimit(rule, 'maxD');
+    const maxN  = ruleLimit(rule, 'maxN');
+    const minDS = ruleLimit(rule, 'minDS');
+    const limD  = ruleLimit(rule, 'limitD');
+    const limN  = ruleLimit(rule, 'limitN');
+
+    const D  = parseFloat(raw.diameter);
+    const N  = parseInt(raw.count, 10);
+    const DS = parseFloat(raw.separation);
+
+    if(maxD !== null && !isNaN(D) && D > maxD){
+      return { ok:false, reason:label + ': D=' + D + ' mm exceeds ' + maxD + ' mm' };
+    }
+    if(limD !== null && !isNaN(D) && D > limD){
+      return { ok:false, reason:label + ': D=' + D + ' mm exceeds ' + limD + ' mm for area ' +
+               (raw.area || rule.area || '—') };
+    }
+    if(maxN !== null && !isNaN(N) && N > maxN){
+      return { ok:false, reason:label + ': N=' + N + ' exceeds ' + maxN };
+    }
+    if(limN !== null && !isNaN(N) && N > limN){
+      return { ok:false, reason:label + ': N=' + N + ' exceeds ' + limN +
+               ' for area ' + (raw.area || rule.area || '—') };
+    }
+    if(minDS !== null && !isNaN(DS) && DS < minDS){
+      return { ok:false, reason:label + ': DS=' + DS + ' mm is below ' + minDS + ' mm' };
+    }
+    /* A matched rule without accept:true means FAIL. This is the whole point of
+       the table: `{ when:'DS < 15' }` is a failure rule. Returns are above for
+       the cases with real limits, so reaching here is an unconditional failure. */
+    return { ok:false, reason:rule.reason || (label + ': outside the permitted limits') };
+  }
+
+  return { ok:true, reason:'', skipped:true };
+}
+
+/** Every point failure for a sample, with its severity. */
+function sampleDefects(s){
+  const out = [];
+  S.activePoints.forEach(function(p){
+    if(p.type === 'text') return;
+    const r = evalPoint(p, (s.checks || {})[p.pointKey]);
+    if(!r.ok){
+      out.push({ key:p.pointKey, cat:p.label || p.pointKey,
+                 sev:(p.severity || 'major').toLowerCase(), reason:r.reason });
+    }
+  });
+  return out;
 }
 
 function sampleResult(s){
   if(!s.serial || s.serialError) return 'PENDING';
-  const bd = evalBD(s);
-  const major = !s.generalPass || !s.funcPass || !s.screenPass || !bd.ok;
-  const minor = !s.aestheticPass;
-  if(major) return 'FAIL-MAJOR';
-  if(minor) return 'FAIL-MINOR';
+  const defects = sampleDefects(s);
+  if(defects.some(function(d){ return d.sev === 'major'; }))   return 'FAIL-MAJOR';
+  if(defects.some(function(d){ return d.sev === 'minor'; }))   return 'FAIL-MINOR';
   return 'PASS';
 }
 
-function freshSamples(n){
-  return Array.from({ length:n }, function(_, i){
-    return {
-      num: i + 1,
-      serial: '', serialError: '',
-      aestheticPass: true, generalPass: true, funcPass: true, screenPass: true,
-      bdNoDot: true, bdVisible: false,
-      bdD: '', bdN: '', bdDS: '', bdArea: 'A',
-      remark: '', inspectedAt: ''
-    };
+/** A blank sample with one entry per configured point. */
+function freshSample(num_) {
+  const checks = {};
+  S.activePoints.forEach(function(p){
+    checks[p.pointKey] = defaultPointValue(p);
   });
+  return {
+    num: num_, serial: '', serialError: '',
+    checks: checks,
+    remark: '', inspectedAt: ''
+  };
+}
+
+/**
+ * Sensible starting value per point type.
+ * Toggles start as PASS so an inspector only marks exceptions; the value is
+ * still explicit, so nothing is silently treated as passing.
+ */
+function defaultPointValue(p){
+  if(p.type === 'toggle')  return true;
+  if(p.type === 'lookup')  return { notVisible: true, area: firstAreaOf(p) };
+  if(p.type === 'select')  return defaultSelectValue(p);
+  return '';
+}
+
+/** First area code offered by a lookup rule table. */
+function firstAreaOf(p){
+  const rules = lookupRules(p);
+  const withArea = rules.filter(function(r){ return r.area; })[0];
+  return withArea ? String(withArea.area) : '';
+}
+
+function defaultSelectValue(p){
+  const cfg = parseJson(p.options, null);
+  if(cfg && Array.isArray(cfg.options) && cfg.options.length){
+    return String(cfg.options[0].value);
+  }
+  return '';
+}
+
+function freshSamples(n){
+  return Array.from({ length:n }, function(_, i){ return freshSample(i + 1); });
 }
 
 function tallyLot(){
@@ -1612,24 +2022,23 @@ function tallyLot(){
     else if(r === 'PASS') passed++;
     else pending++;
   });
+  const m = activeModelDef();
+  const minorAc = num(m.minorAc, 1);
+  const majorAc = num(m.majorAc, 0);
   const filled = S.samples.length - pending;
   return {
     minor: minor, major: major, passed: passed, pending: pending, filled: filled,
     total: S.samples.length,
-    verdict: (minor <= CFG.minorAccepted && major <= CFG.majorAccepted) ? 'PASS' : 'FAIL'
+    minorAc: minorAc, majorAc: majorAc,
+    verdict: (minor <= minorAc && major <= majorAc) ? 'PASS' : 'FAIL'
   };
 }
 
 /** Defect categories for analytics / Pareto. */
 function defectList(s){
-  const out = [];
-  if(!s.aestheticPass) out.push({ cat:'Aesthetic',    sev:'minor' });
-  if(!s.generalPass)   out.push({ cat:'General',      sev:'major' });
-  if(!s.funcPass)      out.push({ cat:'Functional',   sev:'major' });
-  if(!s.screenPass)    out.push({ cat:'Screen',       sev:'major' });
-  const bd = evalBD(s);
-  if(!bd.ok)           out.push({ cat:'Black Dot',    sev:'major' });
-  return out;
+  return sampleDefects(s).map(function(d){
+    return { cat:d.cat, sev:d.sev, key:d.key };
+  });
 }
 
 /* ============================================================
@@ -1685,6 +2094,130 @@ function globalTotals(){
   };
 }
 
+
+/* ============================================================
+   MODEL / POINT LOADING AND FORM FILLING
+   ============================================================ */
+
+/** Load the configured models and the point library from the backend. */
+async function loadModels(){
+  if(S.demo){
+    S.models = S.models.length ? S.models : demoModels();
+    S.points = S.points.length ? S.points : demoPoints();
+    return { ok:true };
+  }
+
+  let r = await api('getModels');
+  if(!r.ok && r.code === 'UNKNOWN_ACTION'){
+    /* Backend not yet upgraded: keep whatever we have and let the UI say so. */
+    return r;
+  }
+  if(r.ok){
+    S.models = (r.models || []).map(normalizeModel);
+    S.points = (r.points || []).map(normalizePoint);
+    return { ok:true };
+  }
+  return r;
+}
+
+function normalizeModel(m){
+  return {
+    modelKey:       m.modelKey || m.key || '',
+    label:          m.label || m.modelKey || '',
+    serialPrefix:   m.serialPrefix || m.code || '',
+    prefixLen:      num(m.prefixLen, (m.serialPrefix || '').length),
+    monthPos:       num(m.monthPos, 5),
+    monthLen:       num(m.monthLen, 4),
+    seqLen:         num(m.seqLen, 7),
+    totalLen:       num(m.totalLen, 15),
+    lotSize:        num(m.lotSize, 0),
+    sampleSize:     num(m.sampleSize, 0),
+    minorAc:        num(m.minorAc, 0),
+    majorAc:        num(m.majorAc, 0),
+    bdMax:          num(m.bdMax, 0),
+    active:         m.active === undefined ? true : m.active,
+    pointKeys:      Array.isArray(m.pointKeys) ? m.pointKeys
+                      : String(m.pointKeys || '').split(/[,;\s]+/).filter(Boolean)
+  };
+}
+
+function normalizePoint(p){
+  return {
+    pointKey:  p.pointKey || p.key || '',
+    label:     p.label || p.pointKey || '',
+    shortLabel:p.shortLabel || '',
+    type:      p.type || 'toggle',
+    severity:  (p.severity || 'major').toLowerCase(),
+    minValue:  p.minValue === undefined ? '' : p.minValue,
+    maxValue:  p.maxValue === undefined ? '' : p.maxValue,
+    options:   p.options === undefined ? '' : p.options,
+    lookup:    p.lookup === undefined ? '' : p.lookup,
+    condition: p.condition || '',
+    helpText:  p.helpText || '',
+    required:  p.required === undefined ? true : p.required,
+    sortOrder: num(p.sortOrder, 0)
+  };
+}
+
+/** Populate the model form, either blank or for an existing model. */
+function fillModelForm(modelKey){
+  const m = modelKey ? findModel(modelKey) : null;
+  S.editingModel = modelKey || null;
+  const set = function(id, value){
+    const el = document.getElementById(id);
+    if(el) el.value = value === undefined || value === null ? '' : value;
+  };
+
+  set('mKey',    m ? m.modelKey : '');
+  set('mLabel',  m ? m.label : '');
+  set('mPrefix', m ? m.serialPrefix : '');
+  set('mPrefixLen', m ? m.prefixLen : 4);
+  set('mMonthPos',  m ? m.monthPos : 5);
+  set('mMonthLen',  m ? m.monthLen : 4);
+  set('mSeqLen',    m ? m.seqLen : 7);
+  set('mTotalLen',  m ? m.totalLen : 15);
+  set('mLot',       m ? m.lotSize : 90);
+  set('mSample',    m ? m.sampleSize : 13);
+  set('mMinorAc',   m ? m.minorAc : 1);
+  set('mMajorAc',   m ? m.majorAc : 0);
+  set('mBdMax',     m && m.bdMax ? m.bdMax : '');
+
+  const chosen = m ? (m.pointKeys || []) : [];
+  $$('.mPointChk').forEach(function(c){ c.checked = chosen.indexOf(c.value) !== -1; });
+
+  const msg = document.getElementById('modelMsg');
+  if(msg) msg.innerHTML = '';
+}
+
+/** Populate the point form, either blank or for an existing point. */
+function fillPointForm(pointKey){
+  const p = pointKey ? findPoint(pointKey) : null;
+  S.editingPoint = pointKey || null;
+  const set = function(id, value){
+    const el = document.getElementById(id);
+    if(el) el.value = value === undefined || value === null ? '' : value;
+  };
+
+  set('pKey',   p ? p.pointKey : '');
+  set('pLabel', p ? p.label : '');
+  set('pShort', p ? p.shortLabel : '');
+  set('pSort',  p ? p.sortOrder : 10);
+  set('pMin',   p ? p.minValue : '');
+  set('pMax',   p ? p.maxValue : '');
+  set('pHelp',  p ? p.helpText : '');
+  set('pOptions', p ? (p.options || p.lookup || '') : '');
+
+  const typeEl = document.getElementById('pType');
+  if(typeEl) typeEl.value = p ? (p.type || 'toggle') : 'toggle';
+  const sevEl = document.getElementById('pSeverity');
+  if(sevEl) sevEl.value = p ? (p.severity || 'major') : 'major';
+  const reqEl = document.getElementById('pRequired');
+  if(reqEl) reqEl.checked = p ? p.required !== false : true;
+
+  const msg = document.getElementById('pointMsg');
+  if(msg) msg.innerHTML = '';
+}
+
 /* ============================================================
    BOOT
    ============================================================ */
@@ -1731,6 +2264,10 @@ function showScreen(which){
     if(el) el.hidden = (k !== which);
   });
   injectLogo();
+  if(which === 'app'){
+    const nav = $('#btnNavModels');
+    if(nav) nav.hidden = !(S.user && S.user.role === 'admin');
+  }
   if(which === 'setup'){
     const el = $('#apiInput');
     if(el) el.value = S.api || '';
@@ -1751,20 +2288,44 @@ function renderApp(){
 
   if($('#hdrUser')) $('#hdrUser').textContent = S.user ? (S.user.name + ' · ' + S.user.role) : '';
   if($('#btnNavAnalytics')) $('#btnNavAnalytics').hidden = !S.caps.analytics;
+  const isAdminUser = !!(S.user && S.user.role === 'admin');
+  if($('#btnNavModels'))  $('#btnNavModels').hidden  = !isAdminUser;
+  if($('#btnNavPoints'))  $('#btnNavPoints').hidden  = !isAdminUser;
+
+  if(S.view === 'models' && S.user && S.user.role === 'admin'){
+    region.innerHTML = buildModelsScreen();
+    $('#hdrTitle').textContent = 'Models & Standards';
+    $('#hdrSub').textContent = 'Model definitions, acceptance numbers and inspection points';
+    injectLogo(region);
+    bindAppEvents();
+    fillModelForm(S.editingModel || null);
+    return;
+  }
+  if(S.view === 'points' && S.user && S.user.role === 'admin'){
+    region.innerHTML = buildPointsScreen();
+    $('#hdrTitle').textContent = 'Inspection Points';
+    $('#hdrSub').textContent = 'Reusable checks available to every model';
+    injectLogo(region);
+    bindAppEvents();
+    fillPointForm(S.editingPoint || null);
+    return;
+  }
 
   if(S.view === 'inspection' && S.activeLot){
     region.innerHTML = buildInspection();
     $('#hdrTitle').textContent = S.activeLot.batchName + ' — ' + S.activeLot.lotNumber;
     $('#hdrSub').textContent =
       'LOT ' + S.activeLot.lotSize + ' | SAMPLE ' + S.activeLot.sampleSize +
-      ' | MODEL ' + (S.activeLot.model || '—') + ' (' + (MODEL_CODE[S.activeLot.model] || '—') + ')' +
+      ' | MODEL ' + modelLabel(S.activeLot.model) +
       ' | PROD ' + mmyyDisp(S.activeLot.prodMonthCode) +
       (S.activeLot.prodMonthCode2 ? ' / ' + mmyyDisp(S.activeLot.prodMonthCode2) : '') +
       ' | BD ≤ ' + S.activeLot.bdMax + ' mm';
   } else {
     region.innerHTML = buildDashboard();
     $('#hdrTitle').textContent = 'OBA Inspection';
-    $('#hdrSub').textContent = 'IS 2500 | LEVEL G2 | LOT ' + CFG.lotSize + ' | SAMPLE ' + CFG.sampleSize;
+    $('#hdrSub').textContent = S.models.length
+      ? S.models.length + ' model' + (S.models.length === 1 ? '' : 's') + ' configured'
+      : 'No models configured — open Models & Standards';
   }
   region.classList.remove('screen-enter');
   void region.offsetWidth;
@@ -1829,14 +2390,20 @@ function buildDashboard(){
 
   /* Admin tools */
   if(isAdmin){
+    if(!S.models.length){
+      html += banner('warn', 'No models configured',
+        'The portal has no model definitions yet, so it is running on a placeholder ' +
+        'standard (lot 90 / sample 13). Open <b>Models &amp; Standards</b> to define your ' +
+        'first model and its inspection points.');
+    }
     html += '<div class="grid grid-auto-280">' +
       '<div class="card"><div class="card-head"><div class="card-title">Create batch</div></div>' +
       '<div class="card-body">' +
         field('Batch name', '<input id="bName" class="input" type="text" placeholder="e.g. LH1G-JUN-2026" autocapitalize="characters">') +
+        field('Model', modelSelect('bModel', '')) +
         field('Total quantity (units)',
               '<input id="bQty" class="input mono" type="number" min="1" inputmode="numeric" placeholder="e.g. 2000">' +
-              '<div class="hint" id="bQtyHint">Lots = quantity ÷ ' + CFG.lotSize + ' (remainder becomes a shorter final lot).</div>') +
-        field('Model', modelSelect('bModel', '')) +
+              '<div class="hint" id="bQtyHint"></div>') +
         '<div class="field-row">' +
           field('Production month 1', '<input id="bMonth" class="input" type="month">') +
           field('Production month 2 <span class="opt">(optional)</span>', '<input id="bMonth2" class="input" type="month">') +
@@ -1874,13 +2441,8 @@ function buildDashboard(){
     '</div>';
   }
 
-  /* Info banner */
-  html += banner('info', 'IS 2500 acceptance criteria',
-    '<b>Lot</b> ' + CFG.lotSize + ' units · <b>Sample</b> ' + CFG.sampleSize + ' units · ' +
-    '<b>Minor</b> (aesthetic) Ac ≤ ' + CFG.minorAccepted + ' · ' +
-    '<b>Major</b> (general / functional / screen / black dot) Ac = 0.<br>' +
-    '<b>Black dot:</b> not visible @2 m → OK · D ≤ 1.28 mm, N ≤ 3, DS ≥ 15 mm → OK · ' +
-    '1.28 &lt; D ≤ 2.4 mm → Area A (N ≤ 1) / Area B (N ≤ 3) / A+B (N ≤ 3) · D &gt; 2.4 mm → FAIL.');
+  /* Info banner — built from the configured models, not from constants. */
+  html += modelStandardsBanner();
 
   /* Batch list */
   if(!groups.length){
@@ -2002,19 +2564,23 @@ function buildInspection(){
     '<div class="samp-head">' +
       '<div style="width:26px"></div>' +
       '<div style="width:210px">Serial number</div>' +
-      '<div class="grow">Aesthetic · General · Functional · Screen · Black dot</div>' +
+      '<div class="grow">' +
+        esc(S.activePoints.map(function(p){
+          return p.label || p.pointKey;
+        }).join(' · ') || 'No inspection points configured for this model') +
+      '</div>' +
       '<div style="width:96px;text-align:center">Verdict</div>' +
     '</div>';
 
   S.samples.forEach(function(s, i){ html += buildSampleRow(s, i); });
   html += '</div>';
 
-  /* Sticky submit bar */
+  /* Sticky submit bar — acceptance numbers come from the active model. */
   html += '<div class="submit-bar">' +
     '<div class="tally">' +
       tallyItem('Filled', t.filled + '/' + t.total, t.filled === t.total ? 'var(--ok)' : 'var(--warn)') +
-      tallyItem('Minor', t.minor + ' / ' + CFG.minorAccepted, t.minor <= CFG.minorAccepted ? 'var(--ok)' : 'var(--danger)') +
-      tallyItem('Major', t.major + ' / ' + CFG.majorAccepted, t.major <= CFG.majorAccepted ? 'var(--ok)' : 'var(--danger)') +
+      tallyItem('Minor', t.minor + ' / ' + t.minorAc, t.minor <= t.minorAc ? 'var(--ok)' : 'var(--danger)') +
+      tallyItem('Major', t.major + ' / ' + t.majorAc, t.major <= t.majorAc ? 'var(--ok)' : 'var(--danger)') +
       tallyItem('Verdict', t.verdict, t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)') +
     '</div>' +
     '<div class="grow"></div>' +
@@ -2036,72 +2602,182 @@ function buildInspection(){
   return html;
 }
 
+/* ============================================================
+   SAMPLE ROW  — rendered from the active model's inspection points
+   ============================================================ */
+
+/** Values on a sample for one point. */
+function checkValue(s, key){
+  return (s.checks || {})[key];
+}
+function setCheckValue(s, key, value){
+  if(!s.checks) s.checks = {};
+  s.checks[key] = value;
+}
+
+/** Compact control shown in the row for one point. */
+function pointControl(point, s, i){
+  const key = point.pointKey;
+  const value = checkValue(s, key);
+  const ev = evalPoint(point, value);
+  const type = point.type || 'toggle';
+
+  if(type === 'toggle'){
+    const pass = (value === true || value === 'true');
+    return '<button class="tgl ' + (pass ? 'tgl-pass' : 'tgl-fail') + ' sPointToggle"' +
+      ' data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+      ' title="' + escAttr((point.label || key) + ' — ' + (point.severity || 'major')) + '"' +
+      ' aria-pressed="' + (!pass) + '">' +
+      esc(point.shortLabel || (point.label || key).slice(0, 4)) + '</button>';
+  }
+
+  if(type === 'lookup'){
+    const cls = ev.ok ? 'ok' : 'bad';
+    const label = ev.skipped ? (point.shortLabel || 'Set')
+                : (ev.ok ? (point.shortLabel || 'OK') + ' ✓' : (point.shortLabel || 'X') + ' ✕');
+    return '<button class="tgl tgl-bd ' + cls + ' pointExpand"' +
+      ' data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+      ' aria-expanded="' + (S.expanded === i) + '"' +
+      ' title="' + escAttr(point.label || key) + '">' + esc(label) + '</button>';
+  }
+
+  if(type === 'numeric'){
+    return '<input class="input mono sPointField point-num' + (ev.ok ? '' : ' err') + '"' +
+      ' data-i="' + i + '" data-key="' + escAttr(key) + '" type="number" step="any"' +
+      ' inputmode="decimal" value="' + escAttr(value === undefined ? '' : value) + '"' +
+      ' placeholder="' + escAttr(point.shortLabel || '—') + '"' +
+      ' title="' + escAttr(point.label || key) + '"' +
+      ' aria-label="' + escAttr((point.label || key) + ' for sample ' + (i + 1)) + '">';
+  }
+
+  if(type === 'select'){
+    const cfg = parseJson(point.options, null);
+    const opts = (cfg && Array.isArray(cfg.options)) ? cfg.options : [];
+    return '<select class="select sPointField point-sel' + (ev.ok ? '' : ' err') + '"' +
+      ' data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+      ' title="' + escAttr(point.label || key) + '"' +
+      ' aria-label="' + escAttr((point.label || key) + ' for sample ' + (i + 1)) + '">' +
+      opts.map(function(o){
+        const ov = String(o.value);
+        return '<option value="' + escAttr(ov) + '"' +
+          (String(value) === ov ? ' selected' : '') + '>' + esc(o.label || ov) + '</option>';
+      }).join('') + '</select>';
+  }
+
+  /* text */
+  return '<input class="input sPointField point-txt"' +
+    ' data-i="' + i + '" data-key="' + escAttr(key) + '" type="text"' +
+    ' value="' + escAttr(value === undefined ? '' : value) + '"' +
+    ' placeholder="' + escAttr(point.shortLabel || '—') + '"' +
+    ' aria-label="' + escAttr((point.label || key) + ' for sample ' + (i + 1)) + '">';
+}
+
+/** Expanded detail panel for a lookup point. */
+function lookupPanel(point, s, i){
+  const key = point.pointKey;
+  const raw = checkValue(s, key) || {};
+  const ev = evalPoint(point, raw);
+  const rules = lookupRules(point);
+  const areas = [];
+  rules.forEach(function(r){
+    if(r.area && areas.indexOf(String(r.area)) === -1) areas.push(String(r.area));
+  });
+  const multi = rules.some(function(r){ return num(r.count, 0) > 0 || num(r.limitN, 0) > 0; });
+
+  let html = '<div class="samp-expand rowz-expand">' +
+    '<div class="row-wrap" style="margin-bottom:var(--sp-3)">' +
+      '<span class="label" style="margin:0">' + esc(point.label || key) + '</span>' +
+      '<label class="chk"><input type="checkbox" class="pLookupFlag" data-i="' + i + '"' +
+        ' data-key="' + escAttr(key) + '" data-f="notVisible"' +
+        (raw.notVisible ? ' checked' : '') + '> Not visible at 2 m (acceptable)</label>' +
+    '</div>';
+
+  if(point.helpText){
+    html += '<div class="hint" style="margin-bottom:var(--sp-3)">' + esc(point.helpText) + '</div>';
+  }
+
+  if(!raw.notVisible){
+    html += '<div class="bd-grid">' +
+      '<div><label class="label">D — diameter (mm)</label>' +
+        '<input class="input mono sBDF" data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+        ' data-f="diameter" type="number" step="0.01" inputmode="decimal"' +
+        ' value="' + escAttr(raw.diameter === undefined ? '' : raw.diameter) + '" placeholder="e.g. 1.2"></div>' +
+      (multi ?
+      '<div><label class="label">N — count</label>' +
+        '<input class="input mono sBDF" data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+        ' data-f="count" type="number" step="1" inputmode="numeric"' +
+        ' value="' + escAttr(raw.count === undefined ? '' : raw.count) + '" placeholder="e.g. 2"></div>' +
+      '<div><label class="label">DS — separation (mm)</label>' +
+        '<input class="input mono sBDF" data-i="' + i + '" data-key="' + escAttr(key) + '"' +
+        ' data-f="separation" type="number" step="0.1" inputmode="decimal"' +
+        ' value="' + escAttr(raw.separation === undefined ? '' : raw.separation) + '" placeholder="e.g. 20"></div>'
+      : '') +
+      (areas.length ?
+      '<div><label class="label">Area</label>' +
+        '<select class="select mono sBDF" data-i="' + i + '" data-key="' + escAttr(key) + '" data-f="area">' +
+          areas.map(function(a){
+            return '<option value="' + escAttr(a) + '"' +
+              (String(raw.area) === a ? ' selected' : '') + '>' + esc(a) + '</option>';
+          }).join('') +
+        '</select></div>'
+      : '') +
+      '<div><div class="bd-verdict ' + (ev.ok ? 'ok' : 'bad') + '">' +
+        (ev.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(ev.reason || '') + '</div></div>' +
+    '</div>';
+  } else {
+    html += '<div class="bd-verdict ok">✓ ' + esc(ev.reason || 'Acceptable') + '</div>';
+  }
+
+  html += '<input class="input sRemark" data-i="' + i + '" type="text" style="margin-top:var(--sp-3)"' +
+    ' value="' + escAttr(s.remark || '') + '" placeholder="Remark / defect description (optional)">' +
+  '</div>';
+  return html;
+}
+
 function buildSampleRow(s, i){
   const r = sampleResult(s);
   const v = VERDICT_MAP[r] || VERDICT_MAP['PENDING'];
-  const bd = evalBD(s);
   const isFail = r.indexOf('FAIL') === 0;
   const isDone = r !== 'PENDING';
   const expanded = S.expanded === i;
-  const bdCls = s.bdNoDot ? '' : (bd.ok ? 'ok' : 'bad');
-  const bdLabel = s.bdNoDot ? 'No BD' : (s.bdVisible ? (bd.ok ? 'BD ✓' : 'BD ✕') : 'BD ?');
-  const ph = (MODEL_CODE[S.activeLot.model] || '????') +
-             (S.activeLot.prodMonthCode || '????') + '0000001';
+  const ph = serialPlaceholder(activeModelDef());
+  const maxLen = num(activeModelDef().totalLen, 15);
 
   let html = '<div class="samp rowz' + (isFail ? ' fail' : (isDone ? ' done' : '')) + '">' +
     '<div class="samp-num">' + (i + 1) + '</div>' +
     '<div class="samp-serial">' +
       '<input class="input mono sSerial' + (s.serialError ? ' err' : '') + '"' +
         ' data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off"' +
-        ' spellcheck="false" maxlength="15"' +
+        ' spellcheck="false" maxlength="' + maxLen + '"' +
         ' value="' + escAttr(s.serial) + '" placeholder="' + escAttr(ph) + '"' +
         ' aria-label="Serial number for sample ' + (i + 1) + '">' +
       (s.serialError ? '<div class="err-msg"><span>⚠</span><span>' + esc(s.serialError) + '</span></div>' : '') +
     '</div>' +
     '<div class="samp-toggles">' +
-      tgl('Aes',  'aestheticPass', i, s.aestheticPass, 'Aesthetic — minor defect') +
-      tgl('Gen',  'generalPass',   i, s.generalPass,   'General — major defect') +
-      tgl('Func', 'funcPass',      i, s.funcPass,      'Functional — major defect') +
-      tgl('Scr',  'screenPass',    i, s.screenPass,    'Screen — major defect') +
-      '<button class="tgl tgl-bd ' + bdCls + ' bdExpand" data-i="' + i + '"' +
-        ' aria-expanded="' + expanded + '" title="Black dot detail">' + bdLabel + '</button>' +
+      S.activePoints.map(function(p){ return pointControl(p, s, i); }).join('') +
     '</div>' +
     '<div class="grow"></div>' +
     '<div class="samp-verdict rowz-verdict ' + v[1] + '">' + v[0] + '</div>' +
   '</div>';
 
+  /* Detail panel: shown for the expanded sample, for any point that has one. */
   if(expanded){
-    html += '<div class="samp-expand rowz-expand">' +
-      '<div class="row-wrap" style="margin-bottom:var(--sp-3)">' +
-        '<span class="label" style="margin:0">Black dot detail</span>' +
-        '<label class="chk"><input type="checkbox" class="sBDNoDot" data-i="' + i + '"' +
-          (s.bdNoDot ? ' checked' : '') + '> No black dot</label>' +
-        (!s.bdNoDot ?
-          '<label class="chk"><input type="checkbox" class="sBDVis" data-i="' + i + '"' +
-          (s.bdVisible ? ' checked' : '') + '> Visible at 2 m</label>' : '') +
-      '</div>';
-
-    if(!s.bdNoDot){
-      html += '<div class="bd-grid">' +
-        bdField('D (mm)',    'bdD',  i, s.bdD,  'number', '0.01', 'e.g. 1.2') +
-        bdField('N (spots)', 'bdN',  i, s.bdN,  'number', '1',    'e.g. 2') +
-        bdField('DS (mm)',   'bdDS', i, s.bdDS, 'number', '0.1',  'e.g. 20') +
-        '<div><label class="label" for="bdArea' + i + '">Area</label>' +
-          '<select class="select mono sBDF" id="bdArea' + i + '" data-i="' + i + '" data-f="bdArea">' +
-            '<option value="A"' + (s.bdArea === 'A' ? ' selected' : '') + '>Area A</option>' +
-            '<option value="B"' + (s.bdArea === 'B' ? ' selected' : '') + '>Area B</option>' +
-            '<option value="A+B"' + (s.bdArea === 'A+B' ? ' selected' : '') + '>Area A+B</option>' +
-          '</select></div>' +
-        '<div><div class="bd-verdict ' + (bd.ok ? 'ok' : 'bad') + '">' +
-          (bd.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(bd.reason) + '</div></div>' +
-      '</div>';
-    } else {
-      html += '<div class="bd-verdict ok">✓ No black dot — acceptable</div>';
-    }
-
-    html += '<input class="input sRemark" data-i="' + i + '" type="text" style="margin-top:var(--sp-3)"' +
-      ' value="' + escAttr(s.remark) + '" placeholder="Remark / defect description (optional)">' +
-    '</div>';
+    S.activePoints.forEach(function(p){
+      const t = p.type || 'toggle';
+      if(t === 'lookup'){
+        html += lookupPanel(p, s, i);
+      } else if(t === 'text' || t === 'select' || t === 'numeric'){
+        /* A remark/details panel for the remaining types. */
+        html += '<div class="samp-expand rowz-expand">' +
+          '<div class="row-wrap" style="margin-bottom:var(--sp-2)">' +
+            '<span class="label" style="margin:0">' + esc(p.label || p.pointKey) + '</span>' +
+          '</div>' +
+          (p.helpText ? '<div class="hint" style="margin-bottom:var(--sp-2)">' + esc(p.helpText) + '</div>' : '') +
+          '<input class="input sRemark" data-i="' + i + '" type="text"' +
+          ' value="' + escAttr(s.remark || '') + '" placeholder="Remark / defect description (optional)">' +
+          '</div>';
+      }
+    });
   }
   return html;
 }
@@ -2136,22 +2812,57 @@ function banner(kind, title, body){
     '<span><b>' + esc(title) + '</b> — ' + body + '</span></div>';
 }
 function modelSelect(id, selected){
+  const models = allModels();
   return '<select id="' + id + '" class="select">' +
-    ALL_MODELS.map(function(m){
-      return '<option value="' + m.key + '"' + (m.key === selected ? ' selected' : '') + '>' +
-        esc(m.label) + '</option>';
+    models.map(function(m){
+      return '<option value="' + escAttr(m.modelKey) + '"' +
+        (m.modelKey === selected ? ' selected' : '') + '>' +
+        esc(m.label || m.modelKey) +
+        (m.serialPrefix ? ' (' + esc(m.serialPrefix) + ')' : '') +
+      '</option>';
     }).join('') + '</select>';
 }
-function tgl(label, fieldName, i, isPass, title){
-  return '<button class="tgl ' + (isPass ? 'tgl-pass' : 'tgl-fail') + ' sToggle"' +
-    ' data-i="' + i + '" data-f="' + fieldName + '" title="' + escAttr(title) + '"' +
-    ' aria-pressed="' + (!isPass) + '">' + esc(label) + '</button>';
+
+/** Lot-size hint for the selected model. */
+function qtyHintFor(modelKey){
+  const m = findModel(modelKey) || CFG.fallbackModel;
+  const lot = num(m.lotSize, 90);
+  return 'Lots = quantity ÷ ' + lot + ' (remainder becomes a shorter final lot). ' +
+         'Sample size for this model: ' + num(m.sampleSize, 13) + '.';
 }
-function bdField(label, f, i, val, type, step, ph){
-  return '<div><label class="label" for="' + f + i + '">' + esc(label) + '</label>' +
-    '<input class="input mono sBDF" id="' + f + i + '" data-i="' + i + '" data-f="' + f + '"' +
-    ' type="' + type + '" step="' + step + '" inputmode="decimal"' +
-    ' value="' + escAttr(val) + '" placeholder="' + escAttr(ph) + '"></div>';
+
+/**
+ * Standards banner, generated from whatever models/points are configured.
+ * Replaces the old hardcoded IS 2500 paragraph.
+ */
+function modelStandardsBanner(){
+  const models = S.models;
+  if(!models.length){
+    return banner('warn', 'Standards not configured',
+      'No models are defined yet, so a placeholder standard is in use ' +
+      '(lot ' + num(CFG.fallbackModel.lotSize, 90) + ' / sample ' +
+      num(CFG.fallbackModel.sampleSize, 13) + '). ' +
+      'Define models, acceptance numbers and inspection points under ' +
+      '<b>Models &amp; Standards</b>.');
+  }
+
+  const rows = models.map(function(m){
+    const pts = pointsForModel(m);
+    const minors = pts.filter(function(p){ return (p.severity || '').toLowerCase() === 'minor'; });
+    const majors = pts.filter(function(p){ return (p.severity || '').toLowerCase() === 'major'; });
+    return '<div style="margin-bottom:6px">' +
+      '<b>' + esc(m.label || m.modelKey) + '</b>' +
+      (m.serialPrefix ? ' <span class="mono">(' + esc(m.serialPrefix) + ')</span>' : '') +
+      ' — lot <b>' + num(m.lotSize, 90) + '</b>' +
+      ' · sample <b>' + num(m.sampleSize, 13) + '</b>' +
+      ' · minor Ac <b>' + num(m.minorAc, 1) + '</b>' +
+      ' · major Ac <b>' + num(m.majorAc, 0) + '</b>' +
+      ' · ' + pts.length + ' inspection point' + (pts.length === 1 ? '' : 's') +
+      ' (' + minors.length + ' minor / ' + majors.length + ' major)' +
+    '</div>';
+  }).join('');
+
+  return banner('info', 'Configured standards', rows);
 }
 
 /* ============================================================
@@ -2185,6 +2896,8 @@ function bindGlobalEvents(){
     S.demo = true; S.api = 'demo';
     S.user = { username:'demo', name:'Demo Inspector', role:'admin' };
     S.caps = { validate:true, analytics:true, units:true, photos:false, token:false };
+    S.models = demoModels();
+    S.points = demoPoints();
     saveSession();
     showScreen('app');
     loadBatches().then(renderApp);
@@ -2224,6 +2937,12 @@ function bindGlobalEvents(){
   if($('#btnHelp')) $('#btnHelp').onclick = showHelp;
   if($('#btnNavReport')) $('#btnNavReport').onclick = openReport;
   if($('#btnNavAnalytics')) $('#btnNavAnalytics').onclick = openAnalytics;
+  if($('#btnNavModels')) $('#btnNavModels').onclick = function(){
+    S.view = 'models'; S.editingModel = null; renderApp();
+  };
+  if($('#btnNavPoints')) $('#btnNavPoints').onclick = function(){
+    S.view = 'points'; S.editingPoint = null; renderApp();
+  };
   if($('#btnReportClose')) $('#btnReportClose').onclick = function(){ showScreen('app'); };
   if($('#btnAnalyticsClose')) $('#btnAnalyticsClose').onclick = function(){ showScreen('app'); };
   if($('#btnPrint')) $('#btnPrint').onclick = function(){ window.print(); };
@@ -2315,6 +3034,9 @@ async function refreshAll(opts){
   if(!opts.silent){ S.loading = true; if(S.view === 'dashboard') renderApp(); }
 
   const r = await loadBatches();
+  /* Models and points drive every standard in the UI, so refresh them too.
+     A backend that predates the feature simply returns none. */
+  await loadModels();
 
   S.loading = false;
 
@@ -2409,6 +3131,26 @@ function bindAppEvents(){
     const r = await refreshAll({ silent:true });
     rf.disabled = false; rf.textContent = '↻ Refresh data';
     toast(r.ok ? 'Data refreshed' : (r.error || 'Refresh failed'), r.ok ? 'ok' : 'err');
+  };
+
+  /* models & standards: save / edit / delete */
+  if($('#btnSaveModel')) $('#btnSaveModel').onclick = saveModel;
+  if($('#btnSavePoint')) $('#btnSavePoint').onclick = savePoint;
+  $$('[data-editmodel]', region).forEach(function(b){
+    b.onclick = function(){ fillModelForm(b.getAttribute('data-editmodel')); };
+  });
+  $$('[data-delmodel]', region).forEach(function(b){
+    b.onclick = function(){ deleteModel(b.getAttribute('data-delmodel')); };
+  });
+  $$('[data-editpoint]', region).forEach(function(b){
+    b.onclick = function(){ fillPointForm(b.getAttribute('data-editpoint')); };
+  });
+  $$('[data-delpoint]', region).forEach(function(b){
+    b.onclick = function(){ deletePoint(b.getAttribute('data-delpoint')); };
+  });
+  if($('#bModel')) $('#bModel').onchange = function(){
+    const h = $('#bQtyHint');
+    if(h) h.textContent = qtyHintFor($('#bModel').value);
   };
 
   /* report + csv */
@@ -2522,41 +3264,69 @@ function refreshSampleRow(i){
   const tag = $('.samp-verdict', row);
   if(tag){ tag.className = 'samp-verdict rowz-verdict ' + v[1]; tag.textContent = v[0]; }
 
-  refreshBdCell(row, s);
+  refreshPointCells(row, s);
 }
 
 /**
- * The black-dot detail panel is emitted as a SIBLING of its sample row, not a
- * descendant (buildSampleRow closes the row before opening the panel). Every
- * lookup therefore has to consider the row's next sibling too.
+ * A detail panel is emitted as a SIBLING of its sample row, not a descendant
+ * (buildSampleRow closes the row before opening the panel), so lookups must
+ * consider the row's next sibling as well as its descendants.
  */
-function bdPanelOf(row){
-  if(!row) return null;
+function pointPanelsOf(row){
+  if(!row) return [];
+  const out = [];
   const next = row.nextElementSibling;
   if(next && (next.classList.contains('rowz-expand') || next.classList.contains('samp-expand'))){
-    return next;
+    out.push(next);
   }
-  return $('.rowz-expand', row) || $('.samp-expand', row);
+  $$('.rowz-expand, .samp-expand', row).forEach(function(p){
+    if(out.indexOf(p) === -1) out.push(p);
+  });
+  return out;
+}
+
+/** Kept as an alias: the panel is still the sample's detail block. */
+function bdPanelOf(row){
+  const panels = pointPanelsOf(row);
+  return panels.length ? panels[0] : null;
 }
 
 /**
- * Update only the black-dot button and (when open) its inline verdict, without
- * rebuilding the row — rebuilding would drop focus mid-keystroke.
+ * Update each point's compact control and any open panel verdict in place,
+ * without rebuilding the row — rebuilding would drop focus mid-keystroke.
  */
-function refreshBdCell(row, s){
-  const bd = evalBD(s);
-  const bdBtn = $('.tgl-bd', row);
-  if(bdBtn){
-    bdBtn.className = 'tgl tgl-bd ' + (s.bdNoDot ? '' : (bd.ok ? 'ok' : 'bad')) + ' bdExpand';
-    bdBtn.textContent = s.bdNoDot ? 'No BD' : (s.bdVisible ? (bd.ok ? 'BD ✓' : 'BD ✕') : 'BD ?');
-  }
-  const panel = bdPanelOf(row);
-  if(!panel) return;
-  const verdict = $('.bd-verdict', panel);
-  if(verdict){
-    verdict.className = 'bd-verdict ' + (bd.ok ? 'ok' : 'bad');
-    verdict.innerHTML = (bd.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(bd.reason);
-  }
+function refreshPointCells(row, s){
+  /* Compact controls. */
+  S.activePoints.forEach(function(p){
+    const key = p.pointKey;
+    const el = $('[data-key="' + key + '"]', row);
+    if(!el) return;
+    const ev = evalPoint(p, checkValue(s, key));
+    const type = p.type || 'toggle';
+
+    if(type === 'toggle'){
+      const pass = checkValue(s, key) === true || checkValue(s, key) === 'true';
+      el.className = 'tgl ' + (pass ? 'tgl-pass' : 'tgl-fail') + ' sPointToggle';
+      el.setAttribute('aria-pressed', String(!pass));
+    } else if(type === 'lookup'){
+      el.className = 'tgl tgl-bd ' + (ev.ok ? 'ok' : 'bad') + ' pointExpand';
+      el.textContent = (p.shortLabel || 'OK') + (ev.ok ? ' ✓' : ' ✕');
+    } else if(type === 'numeric' || type === 'select' || type === 'text'){
+      if(el.classList) el.classList.toggle('err', !ev.ok);
+    }
+  });
+
+  /* Open panels. */
+  pointPanelsOf(row).forEach(function(panel){
+    S.activePoints.forEach(function(p){
+      if((p.type || '') !== 'lookup') return;
+      const verdict = $('.bd-verdict', panel);
+      if(!verdict) return;
+      const ev = evalPoint(p, checkValue(s, p.pointKey));
+      verdict.className = 'bd-verdict ' + (ev.ok ? 'ok' : 'bad');
+      verdict.innerHTML = (ev.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(ev.reason || '');
+    });
+  });
 }
 
 function refreshTally(){
@@ -2570,10 +3340,10 @@ function refreshTally(){
   if(vals.length >= 4){
     vals[0].textContent = t.filled + '/' + t.total;
     vals[0].style.color = t.filled === t.total ? 'var(--ok)' : 'var(--warn)';
-    vals[1].textContent = t.minor + ' / ' + CFG.minorAccepted;
-    vals[1].style.color = t.minor <= CFG.minorAccepted ? 'var(--ok)' : 'var(--danger)';
-    vals[2].textContent = t.major + ' / ' + CFG.majorAccepted;
-    vals[2].style.color = t.major <= CFG.majorAccepted ? 'var(--ok)' : 'var(--danger)';
+    vals[1].textContent = t.minor + ' / ' + t.minorAc;
+    vals[1].style.color = t.minor <= t.minorAc ? 'var(--ok)' : 'var(--danger)';
+    vals[2].textContent = t.major + ' / ' + t.majorAc;
+    vals[2].style.color = t.major <= t.majorAc ? 'var(--ok)' : 'var(--danger)';
     vals[3].textContent = t.verdict;
     vals[3].style.color = t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)';
   }
@@ -2600,13 +3370,16 @@ function focusSerial(i){
    Binding is scoped to one row so a single row can be rebuilt without
    touching the rest of the document. */
 function bindSampleRowEvents(row){
+  const model = activeModelDef();
+  const totalLen = num(model.totalLen, 15);
+
   $$('.sSerial', row).forEach(function(inp){
     const i = parseInt(inp.getAttribute('data-i'), 10);
 
     inp.oninput = function(){
-      const clean = inp.value.replace(/\D+/g, '').slice(0, 15);
+      const clean = inp.value.replace(/\D+/g, '').slice(0, totalLen);
       if(clean !== inp.value) inp.value = clean;
-      if(clean.length === 15) commitSerial(i, clean);
+      if(clean.length === totalLen) commitSerial(i, clean);
     };
     inp.onchange = function(){ commitSerial(i, inp.value); };
     inp.onkeydown = function(e){
@@ -2617,32 +3390,54 @@ function bindSampleRowEvents(row){
     };
   });
 
-  $$('.sToggle', row).forEach(function(b){
+  /* toggle points: a click flips pass/fail */
+  $$('.sPointToggle', row).forEach(function(b){
     b.onclick = function(){
       const i = parseInt(b.getAttribute('data-i'), 10);
-      const f = b.getAttribute('data-f');
-      S.samples[i][f] = !S.samples[i][f];
-      if(!S.samples[i][f] && !S.samples[i].inspectedAt) S.samples[i].inspectedAt = nowIso();
+      const key = b.getAttribute('data-key');
+      const s = S.samples[i];
+      const pass = checkValue(s, key) === true || checkValue(s, key) === 'true';
+      setCheckValue(s, key, !pass);
+      if(pass && !s.inspectedAt) s.inspectedAt = nowIso();
       saveDraft();
       refreshSampleRow(i);
       refreshTally();
     };
   });
 
-  $$('.sBDNoDot', row).forEach(function(el){
-    el.onchange = function(){
+  /* numeric / select / text points */
+  $$('.sPointField', row).forEach(function(el){
+    const handler = function(){
       const i = parseInt(el.getAttribute('data-i'), 10);
-      S.samples[i].bdNoDot = el.checked;
-      if(el.checked) S.samples[i].bdVisible = false;
+      const key = el.getAttribute('data-key');
+      setCheckValue(S.samples[i], key, el.value);
       saveDraft();
-      rerenderSampleRow(i);
+      refreshSampleRow(i);
+      refreshTally();
+    };
+    el.onchange = handler;
+    el.oninput = debounce(handler, 350);
+  });
+
+  /* expand toggle for any point that has a detail panel */
+  $$('.pointExpand', row).forEach(function(b){
+    b.onclick = function(){
+      const i = parseInt(b.getAttribute('data-i'), 10);
+      S.expanded = (S.expanded === i) ? null : i;
+      renderApp();
+      setTimeout(function(){ focusSerial(i); }, 30);
     };
   });
 
-  $$('.sBDVis', row).forEach(function(el){
+  /* lookup panels: the visibility flag and each measurement */
+  $$('.pLookupFlag', row).forEach(function(el){
     el.onchange = function(){
       const i = parseInt(el.getAttribute('data-i'), 10);
-      S.samples[i].bdVisible = el.checked;
+      const key = el.getAttribute('data-key');
+      const s = S.samples[i];
+      const cur = Object.assign({}, checkValue(s, key) || {});
+      cur[el.getAttribute('data-f')] = el.checked;
+      setCheckValue(s, key, cur);
       saveDraft();
       rerenderSampleRow(i);
     };
@@ -2651,7 +3446,11 @@ function bindSampleRowEvents(row){
   $$('.sBDF', row).forEach(function(el){
     const handler = function(){
       const i = parseInt(el.getAttribute('data-i'), 10);
-      S.samples[i][el.getAttribute('data-f')] = el.value;
+      const key = el.getAttribute('data-key');
+      const s = S.samples[i];
+      const cur = Object.assign({}, checkValue(s, key) || {});
+      cur[el.getAttribute('data-f')] = el.value;
+      setCheckValue(s, key, cur);
       saveDraft();
       refreshSampleRow(i);
       refreshTally();
@@ -2665,17 +3464,6 @@ function bindSampleRowEvents(row){
       const i = parseInt(el.getAttribute('data-i'), 10);
       S.samples[i].remark = el.value;
       saveDraft();
-    };
-  });
-
-  /* The expand toggle controls which single row shows its panel, so it needs a
-     full re-render. It always lives inside the row itself. */
-  $$('.bdExpand', row).forEach(function(b){
-    b.onclick = function(){
-      const i = parseInt(b.getAttribute('data-i'), 10);
-      S.expanded = (S.expanded === i) ? null : i;
-      renderApp();
-      setTimeout(function(){ focusSerial(i); }, 30);
     };
   });
 }
@@ -2726,7 +3514,7 @@ async function commitSerial(i, value, advance){
   const used = S.samples.filter(function(_, j){ return j !== i && S.samples[j].serial; })
                         .map(function(x){ return x.serial.toUpperCase(); });
 
-  let err = validateSerial(v, S.activeLot.model, S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
+  let err = validateSerial(v, activeModelDef(), S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
 
   s.serial = v;
 
@@ -2801,7 +3589,7 @@ async function openBulkPaste(){
     const v = list[i].toUpperCase();
     const used = S.samples.filter(function(_, j){ return j !== i && S.samples[j].serial; })
                           .map(function(x){ return x.serial.toUpperCase(); });
-    const err = validateSerial(v, S.activeLot.model, S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
+    const err = validateSerial(v, activeModelDef(), S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
     S.samples[i].serial = v;
     S.samples[i].serialError = err || '';
     if(err) errors++; else { imported++; S.samples[i].inspectedAt = nowIso(); }
@@ -2814,7 +3602,8 @@ async function openBulkPaste(){
 
 /* ---------- Autofill ---------- */
 async function autofillSequence(){
-  const prefix = (MODEL_CODE[S.activeLot.model] || '') +
+  const model = activeModelDef();
+  const prefix = String(model.serialPrefix || '') +
                  (S.activeLot.prodMonthCode || '');
   if(prefix.length !== 8){ toast('Lot is missing model or production month', 'err'); return; }
 
@@ -2981,6 +3770,27 @@ async function runScanner(){
 }
 
 /* ---------- Lot actions ---------- */
+
+/**
+ * Make a lot the active inspection context: resolve its model and the
+ * inspection points that model selects. Called before every inspection render,
+ * so the screen is built from configuration rather than fixed fields.
+ */
+function activateLot(lot){
+  S.activeLot = lot;
+  S.activeModel = findModel(lot.model) || null;
+  S.activePoints = pointsForModel(S.activeModel || CFG.fallbackModel);
+
+  /* A draft may pre-date a standards change. Add any point it is missing so
+     the row still renders; never discard captured values. */
+  (S.samples || []).forEach(function(s){
+    if(!s.checks) s.checks = {};
+    S.activePoints.forEach(function(p){
+      if(s.checks[p.pointKey] === undefined) s.checks[p.pointKey] = defaultPointValue(p);
+    });
+  });
+}
+
 async function startInspection(key){
   const parts = key.split('||');
   const lot = S.batches.filter(function(l){
@@ -3001,10 +3811,10 @@ async function startInspection(key){
       enterOk:false
     });
     if(resume){
-      S.activeLot = lot;
       S.samples = draft.samples;
       S.expanded = null;
       S.view = 'inspection';
+      activateLot(lot);
       renderApp();
       setTimeout(function(){
         const r = $('#lotRemarks');
@@ -3017,8 +3827,12 @@ async function startInspection(key){
     clearDraft(lot);
   }
 
+  /* Sample size: the lot's own value when set, otherwise the model's. */
   S.activeLot = lot;
-  S.samples = freshSamples(num(lot.sampleSize, CFG.sampleSize));
+  activateLot(lot);
+  const lotSample = num(lot.sampleSize, 0);
+  const modelSample = num(activeModelDef().sampleSize, 0);
+  S.samples = freshSamples(lotSample > 0 ? lotSample : (modelSample > 0 ? modelSample : 1));
   S.expanded = null;
   S.view = 'inspection';
   renderApp();
@@ -3033,10 +3847,10 @@ function resumeDraftByKey(key){
     return l.batchName === d.lot.batchName && l.lotNumber === d.lot.lotNumber;
   })[0];
   if(!lot){ lot = normalizeLot(d.lot); }
-  S.activeLot = lot;
   S.samples = d.samples;
   S.expanded = null;
   S.view = 'inspection';
+  activateLot(lot);
   renderApp();
   setTimeout(function(){
     const r = $('#lotRemarks');
@@ -3075,7 +3889,7 @@ async function openEditLot(key){
     collect: function(){
       return {
         status:        $('#eStatus').value,
-        bdMax:         parseFloat($('#eBdMax').value) || CFG.bdMaxMm,
+        bdMax:         parseFloat($('#eBdMax').value) || num(activeModelDef().bdMax, 0),
         model:         $('#eModel').value,
         prodMonthCode: mmyyFromInput($('#ePm1').value) || lot.prodMonthCode,
         prodMonthCode2: mmyyFromInput($('#ePm2').value)
@@ -3102,6 +3916,9 @@ async function createBatch(){
   const pm2   = $('#bMonth2') ? $('#bMonth2').value : '';
   const msg   = $('#createMsg');
 
+  /* Lot size, sample size and BD limit come from the chosen model. */
+  const modelDef = findModel(model) || CFG.fallbackModel;
+
   if(!name){ toast('Enter a batch name', 'err'); $('#bName').focus(); return; }
   if(qty < 1){ toast('Enter a quantity greater than 0', 'err'); $('#bQty').focus(); return; }
   if(!pm1){ toast('Select production month 1', 'err'); $('#bMonth').focus(); return; }
@@ -3121,20 +3938,22 @@ async function createBatch(){
   /* Legacy fallback */
   if(!r.ok && r.code === 'UNKNOWN_ACTION'){
     r = await api('createKit', {
-      kitName:name, kitSize:qty, lotSize:CFG.lotSize, sampleSize:CFG.sampleSize,
-      bdMax:CFG.bdMaxMm, model:model, prodMonthCode:prodMonthCode,
+      kitName:name, kitSize:qty, lotSize:num(modelDef.lotSize, 90), sampleSize:num(modelDef.sampleSize, 13),
+      bdMax:num(modelDef.bdMax, 0), model:model, prodMonthCode:prodMonthCode,
       prodMonthCode2:prodMonthCode2, createdBy:S.user.username
     });
     if(r.ok) r.batchQty = qty;
   }
 
   if(r.ok){
-    const lots = r.lotsCreated || Math.ceil(qty / CFG.lotSize);
-    const rem = qty % CFG.lotSize;
+    const lotSize = num(modelDef.lotSize, 90);
+    const lots = r.lotsCreated || Math.ceil(qty / lotSize);
+    const rem = qty % lotSize;
     msg.innerHTML = '<div class="banner banner-ok" style="margin:0"><span class="banner-icon">✓</span>' +
       '<span><b>' + esc(name) + '</b> — ' + lots + ' lots created.<br>' +
-      'Quantity ' + qty + ' · ' + CFG.lotSize + ' units per lot' +
-      (rem > 0 ? '<br>Final lot holds ' + rem + ' units (still ' + CFG.sampleSize + ' samples).' : '') +
+      'Quantity ' + qty + ' · ' + lotSize + ' units per lot' +
+      (rem > 0 ? '<br>Final lot holds ' + rem + ' units (still ' +
+        num(modelDef.sampleSize, 13) + ' samples).' : '') +
       '</span></div>';
     $('#bName').value = ''; $('#bQty').value = '';
     await refreshAll({ silent:true });
@@ -3160,13 +3979,16 @@ async function addUser(){
     toast('Use a password of at least 6 characters', 'err'); return;
   }
 
-  const payload = { username:username, name:name, role:role };
+  /*
+   * Always send the plain password; include the hash as well when the backend
+   * supports it. The hardened backend verifies with hash(plain + salt), so it
+   * must receive the plain value - sending only a client-side hash would create
+   * a credential it can never validate.
+   */
+  const payload = { username:username, name:name, role:role, password:password };
   if(S.caps.token){
     const hash = await sha256(password);
-    if(hash){ payload.passwordHash = hash; }
-    else { payload.password = password; }
-  } else {
-    payload.password = password;
+    if(hash) payload.passwordHash = hash;
   }
 
   showLoading('Adding user…');
@@ -3201,8 +4023,8 @@ async function submitLot(){
   const confirmOk = await confirmDialog({
     title:'Submit lot ' + lot.lotNumber + '?',
     body:'Verdict <b style="color:' + (t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)') + '">' +
-         t.verdict + '</b> · Minor ' + t.minor + '/' + CFG.minorAccepted +
-         ' · Major ' + t.major + '/' + CFG.majorAccepted + '.<br><br>' +
+         t.verdict + '</b> · Minor ' + t.minor + '/' + t.minorAc +
+         ' · Major ' + t.major + '/' + t.majorAc + '.<br><br>' +
          'FG released: <b>' + fgPassQty + '</b> of ' + lot.lotSize + ' units.',
     detail:'Once submitted the lot closes and cannot be edited from this screen.',
     okText:'Submit ' + t.verdict, danger:false
@@ -3210,26 +4032,35 @@ async function submitLot(){
   if(!confirmOk) return;
 
   const units = S.samples.map(function(s){
-    const bd = evalBD(s);
     const r = sampleResult(s);
-    const fails = [];
-    if(!s.aestheticPass) fails.push('Aesthetic fail (minor)');
-    if(!s.generalPass)   fails.push('General fail (major)');
-    if(!s.funcPass)      fails.push('Functional fail (major)');
-    if(!s.screenPass)    fails.push('Screen fail (major)');
-    if(!bd.ok)           fails.push('Black dot fail (major): ' + bd.reason);
+    const defects = sampleDefects(s);
+
+    /* Per-point results, so the backend can recompute the verdict. */
+    const checks = S.activePoints.map(function(p){
+      const ev = evalPoint(p, checkValue(s, p.pointKey));
+      return {
+        pointKey: p.pointKey,
+        label:    p.label || p.pointKey,
+        type:     p.type || 'toggle',
+        severity: p.severity || 'major',
+        value:    checkValue(s, p.pointKey),
+        ok:       ev.ok,
+        reason:   ev.reason || ''
+      };
+    });
+
+    const fails = defects.map(function(d){
+      return d.cat + ' (' + d.sev + ')' + (d.reason ? ': ' + d.reason : '');
+    });
+
     return {
-      serial:  s.serial,
-      aes:     s.aestheticPass ? 'Pass' : 'Fail',
-      general: s.generalPass ? 'Pass' : 'Fail',
-      func:    s.funcPass ? 'Pass' : 'Fail',
-      screen:  s.screenPass ? 'Pass' : 'Fail',
-      bd:      s.bdNoDot ? 'No BD' : (s.bdVisible ? bd.reason : 'Not visible @2m'),
-      bdRaw:   { noDot:s.bdNoDot, visible:s.bdVisible, D:s.bdD, N:s.bdN, DS:s.bdDS, area:s.bdArea },
-      remark:  fails.length ? fails.join(' | ') : (s.remark || lotRemarks || 'OK'),
+      serial: s.serial,
+      checks: checks,
+      defects: defects,
+      defectMajor: defects.some(function(d){ return d.sev === 'major'; }),
+      defectMinor: defects.some(function(d){ return d.sev === 'minor'; }),
+      remark: fails.length ? fails.join(' | ') : (s.remark || lotRemarks || 'OK'),
       sampleResult: r === 'PASS' ? 'Pass' : 'Fail',
-      defectMajor: !s.generalPass || !s.funcPass || !s.screenPass || !bd.ok,
-      defectMinor: !s.aestheticPass,
       inspectedAt: s.inspectedAt || nowIso()
     };
   });
@@ -3275,6 +4106,347 @@ async function submitLot(){
 
   S.activeLot = null; S.samples = []; S.expanded = null; S.view = 'dashboard';
   await refreshAll({ silent:true });
+}
+
+
+/* ============================================================
+   MODELS & STANDARDS  — define models and their acceptance numbers
+   ============================================================ */
+
+/** Admin screen: list configured models, add/edit/delete. */
+function buildModelsScreen(){
+  const models = S.models;
+  const pts = S.points;
+  let html = '';
+
+  html += banner('info', 'Models & standards',
+    'Every value the inspection screen uses lives here: model code, lot size, ' +
+    'sample size, acceptance numbers and which inspection points apply. ' +
+    'Nothing is hardcoded in the portal.');
+
+  html += '<div class="grid grid-auto-280">' +
+    '<div class="card"><div class="card-head"><div class="card-title">Add or update a model</div></div>' +
+    '<div class="card-body">' +
+      field('Model key <span class="opt">(short id, no spaces)</span>',
+            '<input id="mKey" class="input mono" type="text" placeholder="e.g. LH1G" autocapitalize="characters">' +
+            '<div class="hint">Editing an existing key updates that model.</div>') +
+      field('Display label', '<input id="mLabel" class="input" type="text" placeholder="e.g. LH1G 6.5in">') +
+      '<div class="field-row">' +
+        field('Serial prefix / model code', '<input id="mPrefix" class="input mono" type="text" placeholder="e.g. 1217">') +
+        field('Prefix length', '<input id="mPrefixLen" class="input mono" type="number" min="0" value="4">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Month position <span class="opt">(1-based)</span>', '<input id="mMonthPos" class="input mono" type="number" min="1" value="5">') +
+        field('Month length', '<input id="mMonthLen" class="input mono" type="number" min="0" value="4">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Sequence length', '<input id="mSeqLen" class="input mono" type="number" min="0" value="7">') +
+        field('Total serial length', '<input id="mTotalLen" class="input mono" type="number" min="1" value="15">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Lot size', '<input id="mLot" class="input mono" type="number" min="1" value="90">') +
+        field('Sample size', '<input id="mSample" class="input mono" type="number" min="1" value="13">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Minor acceptance (Ac)', '<input id="mMinorAc" class="input mono" type="number" min="0" value="1">') +
+        field('Major acceptance (Ac)', '<input id="mMajorAc" class="input mono" type="number" min="0" value="0">') +
+      '</div>' +
+      field('Black-dot / general limit <span class="opt">(optional)</span>',
+            '<input id="mBdMax" class="input mono" type="number" step="0.01" placeholder="e.g. 2.4">') +
+      '<div class="field-group"><label class="label">Inspection points for this model</label>' +
+        (pts.length
+          ? '<div class="col" style="gap:6px">' + pts.map(function(p){
+              return '<label class="chk"><input type="checkbox" class="mPointChk" value="' +
+                escAttr(p.pointKey) + '"> <span>' + esc(p.label || p.pointKey) +
+                ' <span class="muted tiny">(' + esc(p.severity || 'major') +
+                (p.type ? ', ' + esc(p.type) : '') + ')</span></span></label>';
+            }).join('') + '</div>'
+          : '<div class="hint">No inspection points defined yet — create them in ' +
+            '<b>Inspection Points</b> first.</div>') +
+      '</div>' +
+      '<button id="btnSaveModel" class="btn btn-primary btn-full">Save model</button>' +
+      '<div id="modelMsg" style="margin-top:var(--sp-3)"></div>' +
+    '</div></div>' +
+
+    '<div class="card"><div class="card-head"><div class="card-title">Configured models (' +
+      models.length + ')</div></div><div class="card-body">' +
+      (models.length
+        ? models.map(function(m){
+            const mp = pointsForModel(m);
+            return '<div class="lot" style="padding:0 0 var(--sp-3)">' +
+              '<div class="grow">' +
+                '<div class="lot-name">' + esc(m.label || m.modelKey) +
+                  (m.serialPrefix ? ' <span class="muted">(' + esc(m.serialPrefix) + ')</span>' : '') + '</div>' +
+                '<div class="lot-meta">key <b>' + esc(m.modelKey) + '</b> · lot ' + num(m.lotSize, 0) +
+                  ' · sample ' + num(m.sampleSize, 0) +
+                  ' · minor Ac ' + num(m.minorAc, 0) + ' · major Ac ' + num(m.majorAc, 0) +
+                  ' · ' + mp.length + ' point' + (mp.length === 1 ? '' : 's') + '</div>' +
+              '</div>' +
+              '<div class="lot-actions">' +
+                '<button class="btn btn-ghost btn-sm" data-editmodel="' + escAttr(m.modelKey) + '">Edit</button>' +
+                '<button class="btn btn-quiet btn-sm" data-delmodel="' + escAttr(m.modelKey) + '" aria-label="Delete model">🗑</button>' +
+              '</div></div>';
+          }).join('')
+        : '<div class="empty" style="padding:var(--sp-6) 0"><div class="empty-icon">⚙</div>' +
+          '<div>No models yet. Add one using the form.</div></div>') +
+    '</div></div>' +
+  '</div>';
+
+  /* Quick reference of the black-dot rule shape, so admins know what a
+     lookup point expects. Shown only when a lookup point exists. */
+  const lookups = pts.filter(function(p){ return (p.type || '') === 'lookup'; });
+  if(lookups.length){
+    html += '<div class="card"><div class="card-head"><div class="card-title">Lookup point rule format</div></div>' +
+      '<div class="card-body">' +
+      '<div class="hint" style="margin-bottom:var(--sp-3)">A lookup point stores its rule table as JSON. ' +
+      'The first rule whose <b>when</b> condition matches is used. ' +
+      'Variables <b>D</b>, <b>N</b> and <b>DS</b> are the inspector\'s measurements; ' +
+      '<b>area</b> is the selected area. A rule with <b>accept: true</b> passes outright.</div>' +
+      '<pre class="mono" style="white-space:pre-wrap;background:var(--bg);border:1px solid var(--border);' +
+      'border-radius:var(--r-md);padding:var(--sp-3);font-size:var(--fs-xs);overflow:auto">' +
+      esc(JSON.stringify([
+        { when:'notVisible == 1', accept:true, reason:'Not visible at 2 m' },
+        { when:'D <= 1.28',       accept:true, maxN:3, minDS:15 },
+        { area:'A',   when:'D <= maxD', limitN:1, minDS:15 },
+        { area:'B',   when:'D <= maxD', limitN:3, minDS:15 },
+        { area:'A+B', when:'D <= maxD', limitN:3, minDS:15 },
+        { when:'D > maxD', maxD:2.4 }
+      ], null, 2)) + '</pre>' +
+      '<div class="hint">' +
+        'Variables: <b>D</b>=diameter, <b>N</b>=count, <b>DS</b>=separation, ' +
+        '<b>area</b>=selected area, <b>notVisible</b>=1 when not visible at 2 m. ' +
+        'Set <b>maxD</b> on the point or in a rule for the maximum permitted diameter.<br>' +
+        '<b>Rules are matched in order and the first match wins.</b> ' +
+        '<b>accept:true</b> passes the point outright. A matched rule <b>without</b> ' +
+        'accept fails — that is how failure rules work, e.g. <b>{when:"DS &lt; 15"}</b>. ' +
+        'Any limits on a rule (maxD, limitD, maxN, limitN, minDS) are checked first and ' +
+        'fail if exceeded. End the table with <b>{when:"*", accept:true}</b> to accept ' +
+        'everything still standing. ' +
+        'If no rule matches, the point <b>fails</b> — an unmatched table is treated ' +
+        'as a fault, never a silent pass.<br>' +
+        'Use <b>when: "*"</b> on the last rule as an explicit catch-all. ' +
+        'Combine conditions with <b>&amp;&amp;</b> and <b>||</b>; parentheses are allowed. ' +
+        'Text may be compared unquoted: <b>area == A+B</b>.' +
+      '</div>' +
+      '</div></div>';
+  }
+  return html;
+}
+
+/* ============================================================
+   INSPECTION POINT LIBRARY
+   ============================================================ */
+function buildPointsScreen(){
+  const pts = S.points;
+  const types = ['toggle','numeric','select','text','lookup'];
+  const sevs = ['minor','major','critical'];
+
+  let html = '';
+  html += banner('info', 'Inspection points',
+    'A point is one thing an inspector checks. Points are reusable: define them ' +
+    'once here, then select which apply to each model.');
+
+  html += '<div class="grid grid-auto-280">' +
+    '<div class="card"><div class="card-head"><div class="card-title">Add or update a point</div></div>' +
+    '<div class="card-body">' +
+      '<div class="field-row">' +
+        field('Point key <span class="opt">(short id)</span>',
+              '<input id="pKey" class="input mono" type="text" placeholder="e.g. BDOT">') +
+        field('Sort order', '<input id="pSort" class="input mono" type="number" value="10">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Label', '<input id="pLabel" class="input" type="text" placeholder="e.g. Black dot">') +
+        field('Short label <span class="opt">(button)</span>', '<input id="pShort" class="input" type="text" placeholder="e.g. BD">') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Type', '<select id="pType" class="select">' +
+          types.map(function(t){ return '<option value="' + t + '">' + t + '</option>'; }).join('') +
+          '</select>') +
+        field('Severity', '<select id="pSeverity" class="select">' +
+          sevs.map(function(x){ return '<option value="' + x + '"' +
+            (x === 'major' ? ' selected' : '') + '>' + x + '</option>'; }).join('') +
+          '</select>') +
+      '</div>' +
+      '<div class="field-row">' +
+        field('Min <span class="opt">(numeric)</span>', '<input id="pMin" class="input mono" type="number" step="any">') +
+        field('Max <span class="opt">(numeric)</span>', '<input id="pMax" class="input mono" type="number" step="any">') +
+      '</div>' +
+      field('Options / rule table <span class="opt">(JSON)</span>',
+            '<textarea id="pOptions" class="textarea mono" style="min-height:120px" ' +
+            'placeholder=\'{"options":[{"value":"OK","label":"OK"},{"value":"NG","label":"NG","fail":true}]}\'></textarea>' +
+            '<div class="hint">For <b>select</b>: a list of options; mark failures with <code>"fail":true</code>. ' +
+            'For <b>lookup</b>: the rule table (see Models &amp; Standards for the format).</div>') +
+      field('Help text <span class="opt">(shown to the inspector)</span>',
+            '<input id="pHelp" class="input" type="text">') +
+      '<label class="chk" style="margin-bottom:var(--sp-3)">' +
+        '<input id="pRequired" type="checkbox" checked> Required</label>' +
+      '<button id="btnSavePoint" class="btn btn-primary btn-full">Save point</button>' +
+      '<div id="pointMsg" style="margin-top:var(--sp-3)"></div>' +
+    '</div></div>' +
+
+    '<div class="card"><div class="card-head"><div class="card-title">Point library (' +
+      pts.length + ')</div></div><div class="card-body">' +
+      (pts.length
+        ? pts.slice().sort(function(a, b){
+            return num(a.sortOrder, 0) - num(b.sortOrder, 0);
+          }).map(function(p){
+            const used = S.models.filter(function(m){
+              return (m.pointKeys || []).indexOf(p.pointKey) !== -1;
+            }).length;
+            return '<div class="lot" style="padding:0 0 var(--sp-3)">' +
+              '<div class="grow">' +
+                '<div class="lot-name">' + esc(p.label || p.pointKey) +
+                  ' <span class="pill ' + ((p.severity || '') === 'minor' ? 'pill-minor' : 'pill-fail') + '">' +
+                  esc(p.severity || 'major') + '</span></div>' +
+                '<div class="lot-meta">key <b>' + esc(p.pointKey) + '</b> · type ' + esc(p.type || 'toggle') +
+                  ' · order ' + num(p.sortOrder, 0) + ' · used by ' + used + ' model' +
+                  (used === 1 ? '' : 's') + '</div>' +
+              '</div>' +
+              '<div class="lot-actions">' +
+                '<button class="btn btn-ghost btn-sm" data-editpoint="' + escAttr(p.pointKey) + '">Edit</button>' +
+                '<button class="btn btn-quiet btn-sm" data-delpoint="' + escAttr(p.pointKey) + '" aria-label="Delete point">🗑</button>' +
+              '</div></div>';
+          }).join('')
+        : '<div class="empty" style="padding:var(--sp-6) 0"><div class="empty-icon">✔</div>' +
+          '<div>No points yet. Add one using the form.</div></div>') +
+    '</div></div>' +
+  '</div>';
+  return html;
+}
+
+/* ---------- Save / delete handlers ---------- */
+function readModelForm(){
+  return {
+    modelKey:       ($('#mKey').value || '').trim().toUpperCase(),
+    label:          ($('#mLabel').value || '').trim(),
+    serialPrefix:   ($('#mPrefix').value || '').trim(),
+    prefixLen:      parseInt($('#mPrefixLen').value, 10) || 0,
+    monthPos:       parseInt($('#mMonthPos').value, 10) || 1,
+    monthLen:       parseInt($('#mMonthLen').value, 10) || 0,
+    seqLen:         parseInt($('#mSeqLen').value, 10) || 0,
+    totalLen:       parseInt($('#mTotalLen').value, 10) || 0,
+    lotSize:        parseInt($('#mLot').value, 10) || 0,
+    sampleSize:     parseInt($('#mSample').value, 10) || 0,
+    minorAc:        parseInt($('#mMinorAc').value, 10) || 0,
+    majorAc:        parseInt($('#mMajorAc').value, 10) || 0,
+    bdMax:          parseFloat($('#mBdMax').value) || 0,
+    pointKeys:      $$('.mPointChk').filter(function(c){ return c.checked; })
+                      .map(function(c){ return c.value; })
+  };
+}
+
+async function saveModel(){
+  const m = readModelForm();
+  const msg = $('#modelMsg');
+  if(!m.modelKey){ toast('Enter a model key', 'err'); $('#mKey').focus(); return; }
+  if(!m.label){ toast('Enter a display label', 'err'); $('#mLabel').focus(); return; }
+  if(m.lotSize < 1 || m.sampleSize < 1){
+    toast('Lot size and sample size must be at least 1', 'err'); return;
+  }
+  if(!m.pointKeys.length){
+    toast('Select at least one inspection point', 'err'); return;
+  }
+
+  showLoading('Saving model…');
+  const r = await api('saveModel', m);
+  hideLoading();
+
+  if(r.ok){
+    await loadModels();
+    showScreen('models');
+    renderApp();
+    toast('Model ' + m.modelKey + ' saved', 'ok');
+  } else {
+    msg.innerHTML = '<div class="banner banner-danger" style="margin:0">' +
+      '<span class="banner-icon">⚠</span><span>' + esc(r.error || 'Save failed') + '</span></div>';
+    toast(r.error || 'Save failed', 'err');
+  }
+}
+
+async function deleteModel(key){
+  const ok = await confirmDialog({
+    title:'Delete model?',
+    body:'Delete the model <b>' + esc(key) + '</b>?',
+    detail:'Existing lots keep the values already recorded on them. This cannot be undone.',
+    okText:'Delete model'
+  });
+  if(!ok) return;
+  showLoading('Deleting…');
+  const r = await api('deleteModel', { modelKey:key });
+  hideLoading();
+  if(r.ok){ await loadModels(); renderApp(); toast('Model deleted', 'ok'); }
+  else toast(r.error || 'Delete failed', 'err');
+}
+
+function readPointForm(){
+  return {
+    pointKey:  ($('#pKey').value || '').trim().toUpperCase(),
+    label:     ($('#pLabel').value || '').trim(),
+    shortLabel:($('#pShort').value || '').trim(),
+    type:      $('#pType').value,
+    severity:  $('#pSeverity').value,
+    sortOrder: parseInt($('#pSort').value, 10) || 0,
+    minValue:  ($('#pMin').value || '').trim(),
+    maxValue:  ($('#pMax').value || '').trim(),
+    options:   ($('#pOptions').value || '').trim(),
+    helpText:  ($('#pHelp').value || '').trim(),
+    required:  $('#pRequired').checked
+  };
+}
+
+async function savePoint(){
+  const p = readPointForm();
+  const msg = $('#pointMsg');
+  if(!p.pointKey){ toast('Enter a point key', 'err'); $('#pKey').focus(); return; }
+  if(!p.label){ toast('Enter a label', 'err'); $('#pLabel').focus(); return; }
+  if(p.options){
+    try{ JSON.parse(p.options); }
+    catch(e){
+      msg.innerHTML = '<div class="banner banner-danger" style="margin:0">' +
+        '<span class="banner-icon">⚠</span><span>Options JSON is invalid: ' + esc(e.message) +
+        '</span></div>';
+      toast('Options JSON is invalid', 'err');
+      return;
+    }
+  }
+
+  showLoading('Saving point…');
+  const r = await api('savePoint', p);
+  hideLoading();
+
+  if(r.ok){
+    await loadModels();
+    showScreen('points');
+    renderApp();
+    toast('Point ' + p.pointKey + ' saved', 'ok');
+  } else {
+    msg.innerHTML = '<div class="banner banner-danger" style="margin:0">' +
+      '<span class="banner-icon">⚠</span><span>' + esc(r.error || 'Save failed') + '</span></div>';
+    toast(r.error || 'Save failed', 'err');
+  }
+}
+
+async function deletePoint(key){
+  const usedBy = S.models.filter(function(m){
+    return (m.pointKeys || []).indexOf(key) !== -1;
+  }).map(function(m){ return m.label || m.modelKey; });
+
+  const ok = await confirmDialog({
+    title:'Delete inspection point?',
+    body:'Delete <b>' + esc(key) + '</b>' +
+         (usedBy.length ? '? It is used by: ' + esc(usedBy.join(', ')) + '.' : '?'),
+    detail: usedBy.length
+      ? 'Remove it from those models too, or the inspection screen will skip it.'
+      : 'This cannot be undone.',
+    okText:'Delete point'
+  });
+  if(!ok) return;
+
+  showLoading('Deleting…');
+  const r = await api('deletePoint', { pointKey:key });
+  hideLoading();
+  if(r.ok){ await loadModels(); renderApp(); toast('Point deleted', 'ok'); }
+  else toast(r.error || 'Delete failed', 'err');
 }
 
 /* ============================================================
@@ -3570,9 +4742,7 @@ function renderReport(){
     '<div class="report-head">' +
       '<div>' +
         '<div class="report-title">OBA Inspection Report</div>' +
-        '<div class="report-sub">IS 2500 · Level G2 · Lot size ' + CFG.lotSize +
-          ' · Sample ' + CFG.sampleSize + ' · Minor Ac ≤ ' + CFG.minorAccepted +
-          ' · Major Ac = ' + CFG.majorAccepted + '</div>' +
+        '<div class="report-sub">Standard: ' + esc(reportStandardLine()) + '</div>' +
       '</div>' +
       '<div style="text-align:right">' +
         '<div class="tiny muted">Generated</div>' +
@@ -3713,9 +4883,7 @@ function downloadCSV(){
   const lines = [];
   lines.push(q('Lumio OBA Inspection Report'));
   lines.push(q('Generated') + ',' + q(new Date().toLocaleString()));
-  lines.push(q('Standard') + ',' + q('IS 2500 Level G2 — Lot ' + CFG.lotSize +
-    ' / Sample ' + CFG.sampleSize + ' / Minor Ac<=' + CFG.minorAccepted +
-    ' / Major Ac=' + CFG.majorAccepted));
+  lines.push(q('Standard') + ',' + q(reportStandardLine()));
   lines.push('');
   lines.push(['BatchName','LotNumber','Model','ProdMonth1','ProdMonth2','BatchQty','LotSize',
               'SampleSize','Status','Result','FGPassQty','MinorCount','MajorCount',
@@ -3760,12 +4928,9 @@ function showHelp(){
     body:
       '<div class="report-sec-title" style="margin-top:0">Acceptance criteria</div>' +
       '<table class="tbl"><tbody>' +
-        '<tr><td>Lot size / sample</td><td><b>' + CFG.lotSize + ' units / ' +
-          CFG.sampleSize + ' units</b></td></tr>' +
-        '<tr><td>Minor (aesthetic) Ac</td><td><b>≤ ' + CFG.minorAccepted +
-          ' allowed</b></td></tr>' +
-        '<tr><td>Major (general, functional, screen, black dot) Ac</td><td><b>' +
-          CFG.majorAccepted + ' allowed</b></td></tr>' +
+        '<tr><td>Lot size / sample</td><td><b>per model</b> — see Models &amp; Standards</td></tr>' +
+        '<tr><td>Minor acceptance</td><td><b>per model</b> (minorAc)</td></tr>' +
+        '<tr><td>Major acceptance</td><td><b>per model</b> (majorAc)</td></tr>' +
         '<tr><td>Black dot — not visible at 2 m</td><td>Acceptable, any quantity</td></tr>' +
         '<tr><td>Black dot — D ≤ 1.28 mm</td><td>Acceptable with N ≤ 3, DS ≥ 15 mm</td></tr>' +
         '<tr><td>Black dot — 1.28 &lt; D ≤ 2.4 mm</td>' +
@@ -3785,8 +4950,11 @@ function showHelp(){
       '<p class="muted tiny" style="line-height:1.7">15 digits: <b class="mono">' +
       'MMMM YYMM NNNNNNN</b> — 4-digit model code, 4-digit production month (MMYY), then a ' +
       '7-digit sequence. Model codes: ' +
-      ALL_MODELS.map(function(m){ return '<b class="mono">' + m.code + '</b> = ' + esc(m.label); })
-        .join(' · ') + '.</p>' +
+      (S.models.length
+        ? S.models.map(function(m){
+            return '<b class="mono">' + esc(m.serialPrefix || '—') + '</b> = ' + esc(m.label || m.modelKey);
+          }).join(' · ')
+        : 'no models configured yet') + '.</p>' +
 
       '<div class="report-sec-title">Keyboard shortcuts</div>' +
       '<table class="tbl"><tbody>' +
@@ -3809,6 +4977,75 @@ function showHelp(){
 /* ============================================================
    DEMO BACKEND  — explore the UI with no server
    ============================================================ */
+/* Demo mode is illustrative only; it never touches configured standards. */
+const DEMO_LOT = 90;
+const DEMO_SAMPLE = 13;
+
+/* One-line description of the configured standards, for reports and CSV. */
+function reportStandardLine(){
+  if(!S.models.length) return 'No models configured';
+  return S.models.map(function(m){
+    return (m.label || m.modelKey) + ': lot ' + num(m.lotSize, 0) +
+           ' / sample ' + num(m.sampleSize, 0) +
+           ' / minor Ac ' + num(m.minorAc, 0) +
+           ' / major Ac ' + num(m.majorAc, 0);
+  }).join(' | ');
+}
+
+
+/* Demo configuration, mirroring the sample data in demoBatches(). */
+function demoPoints(){
+  return [
+    { pointKey:'AES', label:'Aesthetic', shortLabel:'Aes', type:'toggle',
+      severity:'minor', required:true, sortOrder:10 },
+    { pointKey:'GEN', label:'General', shortLabel:'Gen', type:'toggle',
+      severity:'major', required:true, sortOrder:20 },
+    { pointKey:'FUNC', label:'Functional', shortLabel:'Func', type:'toggle',
+      severity:'major', required:true, sortOrder:30 },
+    { pointKey:'SCR', label:'Screen', shortLabel:'Scr', type:'toggle',
+      severity:'major', required:true, sortOrder:40 },
+    { pointKey:'BDOT', label:'Black dot', shortLabel:'BD', type:'lookup',
+      severity:'major', required:true, sortOrder:50,
+      helpText:'Not visible at 2 m is acceptable. Measurements are compared ' +
+               'against the rule table configured on this point.',
+      lookup: JSON.stringify([
+        { when:'notVisible == 1', accept:true,
+          reason:'Not visible at 2 m — acceptable' },
+        { when:'D > maxD', maxD:2.4,
+          reason:'Diameter exceeds 2.4 mm' },
+        { when:'D <= 1.28 && N <= 3 && DS >= 15', accept:true,
+          reason:'D within 1.28 mm with N and DS acceptable' },
+        { when:'DS < 15',
+          reason:'Dot separation below 15 mm' },
+        { when:'area == A && N > 1',
+          reason:'Area A allows at most 1 dot' },
+        { when:'area == B && N > 3',
+          reason:'Area B allows at most 3 dots' },
+        { when:'area == A+B && N > 3',
+          reason:'Area A+B allows at most 3 dots' },
+        { when:'*', accept:true, reason:'Within the permitted limits' }
+      ])
+    }
+  ];
+}
+
+function demoModels(){
+  return [
+    { modelKey:'LH1G', label:'LH1G', serialPrefix:'1217', prefixLen:4,
+      monthPos:5, monthLen:4, seqLen:7, totalLen:15, lotSize:90, sampleSize:13,
+      minorAc:1, majorAc:0, bdMax:2.4, active:true,
+      pointKeys:['AES','GEN','FUNC','SCR','BDOT'] },
+    { modelKey:'LH3G', label:'LH3G', serialPrefix:'1218', prefixLen:4,
+      monthPos:5, monthLen:4, seqLen:7, totalLen:15, lotSize:90, sampleSize:13,
+      minorAc:1, majorAc:0, bdMax:2.4, active:true,
+      pointKeys:['AES','GEN','FUNC','SCR','BDOT'] },
+    { modelKey:'LH3G_NEW', label:'LH3G New', serialPrefix:'1213', prefixLen:4,
+      monthPos:5, monthLen:4, seqLen:7, totalLen:15, lotSize:90, sampleSize:13,
+      minorAc:1, majorAc:0, bdMax:2.4, active:true,
+      pointKeys:['AES','GEN','FUNC','SCR','BDOT'] }
+  ];
+}
+
 function demoBatches(){
   const out = [];
   const models = [
@@ -3821,16 +5058,16 @@ function demoBatches(){
     const m = models[b % models.length];
     const name = 'DEMO-' + m.model + '-' + m.pmc;
     const qty = qtys[b];
-    const lots = Math.ceil(qty / CFG.lotSize);
+    const lots = Math.ceil(qty / DEMO_LOT);
     for(let i = 1; i <= lots; i++){
       const closer = i <= lots - (b === 0 ? 1 : Math.ceil(lots * 0.3));
       const failed = closer && ((i * 7 + b) % 9 === 0);
       out.push({
         batchName:name,
         lotNumber:'LOT-' + String(i).padStart(3,'0'),
-        lotSize: i === lots ? (qty % CFG.lotSize || CFG.lotSize) : CFG.lotSize,
-        sampleSize:CFG.sampleSize,
-        bdMax:CFG.bdMaxMm,
+        lotSize: i === lots ? (qty % DEMO_LOT || DEMO_LOT) : DEMO_LOT,
+        sampleSize:DEMO_SAMPLE,
+        bdMax:0,
         status: closer ? 'Closed' : 'Open',
         result: closer ? (failed ? 'FAIL' : 'PASS') : '',
         batchQty:qty,
@@ -3838,7 +5075,7 @@ function demoBatches(){
         model:m.model,
         prodMonthCode:m.pmc,
         prodMonthCode2:'',
-        fgPassQty: closer && !failed ? CFG.lotSize : 0,
+        fgPassQty: closer && !failed ? DEMO_LOT : 0,
         minorCount: failed ? 2 : (closer && i % 3 === 0 ? 1 : 0),
         majorCount: failed ? 1 : 0,
         createdBy:'demo',
@@ -3859,12 +5096,13 @@ function demoApi(action, body){
         name: body.username === 'admin' ? 'Demo Admin' : 'Demo Inspector'
       });
     case 'getBatches':   return ok({ batches:demoBatches() });
+    case 'getModels':    return ok({ models:demoModels(), points:demoPoints() });
     case 'capabilities': return ok({ capabilities:{ validate:true, analytics:true,
                                    units:true, photos:false, token:false } });
     case 'checkSerial':  return ok({ exists:false });
     case 'submitLot':    return ok({ verdict:body.clientVerdict || 'PASS',
                                      fgPassQty:body.fgPassQty });
-    case 'createBatch':  return ok({ lotsCreated:Math.ceil(num(body.batchQty) / CFG.lotSize) });
+    case 'createBatch':  return ok({ lotsCreated:Math.ceil(num(body.batchQty) / DEMO_LOT) });
     case 'createKit':    return ok({ kitsCreated:1 });
     case 'addUser':      return ok({});
     case 'updateLot':
