@@ -1,0 +1,3884 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Lumio OBA Inspection — IS 2500 Level G2 batch inspection system">
+<title>Lumio OBA Inspection</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23047857'/%3E%3Cpath d='M9 21V11h3.4v7.2H23V21z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   LUMIO OBA — DESIGN SYSTEM
+   Token-driven, dual-theme, WCAG-AA contrast, print-ready.
+   ============================================================ */
+
+/* ---------- Tokens : dark (default) ---------- */
+:root,
+:root[data-theme="dark"]{
+  color-scheme: dark;
+
+  --bg:            #0b1220;
+  --bg-2:          #0e1729;
+  --surface:       #131e33;
+  --surface-2:     #1a2740;
+  --surface-3:     #22304d;
+  --sidebar:       #0d1728;
+
+  --border:        #24324b;
+  --border-strong: #38495f;
+
+  --text:          #f1f5f9;
+  --text-2:        #cbd5e1;
+  --text-3:        #a8b6cb;
+  --text-4:        #8494ae;
+
+  --primary:       #10b981;
+  --primary-hover: #34d399;
+  --on-primary:    #04231a;
+  --primary-soft:  #0c2b23;
+  --primary-line:  #1d6b52;
+
+  --accent:        #818cf8;
+  --accent-hover:  #a5b4fc;
+  --accent-soft:   #1b2340;
+  --accent-line:   #3f4a86;
+
+  --ok:            #4ade80;
+  --ok-soft:       #0c2b1c;
+  --ok-line:       #1d6b45;
+
+  --warn:          #fbbf24;
+  --warn-soft:     #33270a;
+  --warn-line:     #7a5a12;
+
+  --danger:        #f87171;
+  --danger-hover:  #fca5a5;
+  --danger-soft:   #331414;
+  --danger-line:   #8a2b2b;
+  --on-danger:     #2a0a0a;
+
+  --info:          #60a5fa;
+  --info-soft:     #102a4a;
+  --info-line:     #2b5b96;
+
+  --track:         #1b2740;
+  --overlay:       rgba(3,7,16,.72);
+  --ring:          0 0 0 3px rgba(16,185,129,.35);
+  --ring-danger:   0 0 0 3px rgba(248,113,113,.32);
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.35);
+  --shadow-2: 0 4px 16px rgba(0,0,0,.4);
+  --shadow-3: 0 18px 48px rgba(0,0,0,.55);
+}
+
+/* ---------- Tokens : light ---------- */
+:root[data-theme="light"]{
+  color-scheme: light;
+
+  --bg:            #f1f5f9;
+  --bg-2:          #e9eef5;
+  --surface:       #ffffff;
+  --surface-2:     #f6f8fb;
+  --surface-3:     #eaeff6;
+  --sidebar:       #ffffff;
+
+  --border:        #ccd7e4;
+  --border-strong: #a9b8ca;
+
+  --text:          #0f172a;
+  --text-2:        #334155;
+  --text-3:        #4a5a70;
+  --text-4:        #5d6d84;
+
+  --primary:       #047857;
+  --primary-hover: #036148;
+  --on-primary:    #ffffff;
+  --primary-soft:  #e3f5ef;
+  --primary-line:  #7cc9b1;
+
+  --accent:        #4f46e5;
+  --accent-hover:  #4338ca;
+  --accent-soft:   #eceafe;
+  --accent-line:   #b3adf2;
+
+  --ok:            #15803d;
+  --ok-soft:       #e4f6e8;
+  --ok-line:       #8bce9c;
+
+  --warn:          #a35a06;
+  --warn-soft:     #fdf0db;
+  --warn-line:     #e0b070;
+
+  --danger:        #c02020;
+  --danger-hover:  #9c1a1a;
+  --danger-soft:   #fdeaea;
+  --danger-line:   #eaa0a0;
+  --on-danger:     #ffffff;
+
+  --info:          #1d4ed8;
+  --info-soft:     #e7eeff;
+  --info-line:     #a8c0f5;
+
+  --track:         #dfe6ef;
+  --overlay:       rgba(15,23,42,.45);
+  --ring:          0 0 0 3px rgba(4,120,87,.28);
+  --ring-danger:   0 0 0 3px rgba(192,32,32,.25);
+
+  --shadow-1: 0 1px 2px rgba(15,23,42,.08);
+  --shadow-2: 0 4px 14px rgba(15,23,42,.10);
+  --shadow-3: 0 18px 44px rgba(15,23,42,.18);
+}
+
+/* ---------- Tokens : static ---------- */
+:root{
+  --font: "Segoe UI", system-ui, -apple-system, "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+
+  --r-sm: 7px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-full: 999px;
+
+  --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px;
+  --fs-lg: 15px; --fs-xl: 18px; --fs-2xl: 24px; --fs-3xl: 30px;
+
+  --tap: 44px;          /* minimum touch target */
+  --hdr-h: 60px;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family:var(--font);
+  font-size:var(--fs-md);
+  line-height:1.5;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+h1,h2,h3,h4,p{ margin:0; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+button{ background:none; border:none; cursor:pointer; }
+table{ border-collapse:collapse; width:100%; }
+img{ max-width:100%; display:block; }
+[hidden]{ display:none !important; }
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--border-strong); border-radius:var(--r-full); border:2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover{ background:var(--text-4); }
+
+:focus-visible{ outline:none; box-shadow:var(--ring); border-radius:var(--r-sm); }
+
+/* ---------- Skip link ---------- */
+.skip{
+  position:absolute; left:-9999px; top:var(--sp-2); z-index:200;
+  background:var(--primary); color:var(--on-primary);
+  padding:10px 16px; border-radius:var(--r-md); font-weight:700;
+}
+.skip:focus{ left:var(--sp-4); }
+
+/* ---------- Utilities ---------- */
+.mono{ font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.muted{ color:var(--text-3); }
+.tiny{ font-size:var(--fs-xs); }
+.nowrap{ white-space:nowrap; }
+.grow{ flex:1 1 auto; min-width:0; }
+.row{ display:flex; align-items:center; gap:var(--sp-3); }
+.row-wrap{ display:flex; align-items:center; gap:var(--sp-3); flex-wrap:wrap; }
+.col{ display:flex; flex-direction:column; gap:var(--sp-3); }
+.between{ display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3); }
+.center{ display:flex; align-items:center; justify-content:center; }
+.right{ text-align:right; }
+.hide-sm{ display:initial; }
+.only-sm{ display:none; }
+
+@keyframes fade-in{ from{ opacity:0 } to{ opacity:1 } }
+@keyframes pop-in{ from{ opacity:0; transform:translateY(8px) scale(.99) } to{ opacity:1; transform:none } }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+@keyframes pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.45 } }
+@keyframes shake{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-3px)} 40%,60%{transform:translateX(3px)} }
+
+.screen-enter{ animation:fade-in .18s var(--ease); }
+.pop{ animation:pop-in .2s var(--ease); }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
+
+/* ---------- Layout ---------- */
+.app{ min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+
+.hdr{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:var(--sp-4);
+  padding:var(--sp-3) var(--sp-5);
+  background:var(--sidebar);
+  border-bottom:1px solid var(--border);
+}
+.hdr-brand{ display:flex; align-items:center; gap:var(--sp-3); min-width:0; }
+.brand-mark{
+  display:flex; align-items:center; justify-content:center;
+  background:#fff; border-radius:var(--r-md);
+  padding:5px 10px; flex-shrink:0;
+  border:1px solid var(--border);
+}
+.brand-mark img{ height:24px; width:auto; }
+.hdr-title{ font-size:var(--fs-lg); font-weight:750; letter-spacing:-.01em; line-height:1.25; }
+.hdr-sub{
+  font-size:var(--fs-xs); color:var(--text-3);
+  letter-spacing:.02em; margin-top:1px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.hdr-actions{ display:flex; align-items:center; gap:var(--sp-2); margin-left:auto; flex-wrap:wrap; justify-content:flex-end; }
+
+.main{ flex:1; width:100%; max-width:1440px; margin:0 auto; padding:var(--sp-5); }
+.main-narrow{ max-width:900px; }
+
+.footer{
+  padding:var(--sp-5); text-align:center;
+  font-size:var(--fs-xs); color:var(--text-4);
+  border-top:1px solid var(--border);
+}
+
+/* ---------- Auth cards ---------- */
+.auth-wrap{
+  min-height:100vh; min-height:100dvh;
+  display:flex; align-items:center; justify-content:center;
+  padding:var(--sp-5);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--primary-soft), transparent 70%),
+    var(--bg);
+}
+.auth-card{
+  width:100%; max-width:420px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--shadow-3);
+  padding:var(--sp-8) var(--sp-6) var(--sp-6);
+}
+.auth-logo{ display:flex; justify-content:center; margin-bottom:var(--sp-5); }
+.auth-title{ font-size:var(--fs-xl); font-weight:750; text-align:center; letter-spacing:-.01em; }
+.auth-sub{ font-size:var(--fs-sm); color:var(--text-3); text-align:center; margin-top:var(--sp-1); }
+
+/* ---------- Card ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-1);
+  margin-bottom:var(--sp-4); overflow:hidden;
+}
+.card-pad{ padding:var(--sp-5); }
+.card-head{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3);
+  padding:var(--sp-4) var(--sp-5);
+  border-bottom:1px solid var(--border);
+  background:var(--surface-2);
+}
+.card-title{
+  font-size:var(--fs-sm); font-weight:750; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--text-2);
+}
+.card-body{ padding:var(--sp-5); }
+
+/* ---------- Grid ---------- */
+.grid{ display:grid; gap:var(--sp-4); }
+.grid-auto-280{ grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.grid-auto-200{ grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+.grid-kpi{ display:grid; gap:var(--sp-3); grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+
+/* ---------- Stat ---------- */
+.stat{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-md); padding:var(--sp-4);
+  box-shadow:var(--shadow-1);
+}
+.stat-label{
+  font-size:var(--fs-xs); font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--text-3);
+}
+.stat-val{
+  font-size:var(--fs-2xl); font-weight:800; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; margin-top:var(--sp-1); line-height:1.15;
+}
+.stat-val.sm{ font-size:var(--fs-xl); }
+.stat-sub{ font-size:var(--fs-xs); color:var(--text-3); margin-top:2px; }
+.stat-ok .stat-val{ color:var(--ok); }
+.stat-warn .stat-val{ color:var(--warn); }
+.stat-danger .stat-val{ color:var(--danger); }
+.stat-info .stat-val{ color:var(--info); }
+
+/* ---------- Form ---------- */
+.field-group{ margin-bottom:var(--sp-4); }
+.label{
+  display:block; font-size:var(--fs-xs); font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:6px;
+}
+.label .opt{ text-transform:none; letter-spacing:0; font-weight:500; color:var(--text-4); }
+.input,.select,.textarea{
+  width:100%; min-height:var(--tap);
+  background:var(--bg);
+  border:1px solid var(--border-strong);
+  border-radius:var(--r-md);
+  padding:10px 13px;
+  font-size:var(--fs-md);
+  color:var(--text);
+  transition:border-color .15s var(--ease), box-shadow .15s var(--ease);
+}
+.input::placeholder,.textarea::placeholder{ color:var(--text-4); }
+.input:hover,.select:hover,.textarea:hover{ border-color:var(--text-4); }
+.input:focus,.select:focus,.textarea:focus{
+  outline:none; border-color:var(--primary); box-shadow:var(--ring);
+}
+.input.mono{ letter-spacing:.02em; }
+.select{ cursor:pointer; appearance:none; padding-right:36px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--text-3) 50%),linear-gradient(135deg,var(--text-3) 50%,transparent 50%);
+  background-position:calc(100% - 19px) calc(50% + 1px),calc(100% - 14px) calc(50% + 1px);
+  background-size:5px 5px,5px 5px; background-repeat:no-repeat;
+}
+.textarea{ min-height:80px; resize:vertical; }
+.input.err,.select.err,.textarea.err{ border-color:var(--danger); box-shadow:var(--ring-danger); }
+.input:disabled,.select:disabled{ opacity:.55; cursor:not-allowed; }
+.hint{ font-size:var(--fs-xs); color:var(--text-3); margin-top:5px; line-height:1.5; }
+.err-msg{
+  display:flex; align-items:flex-start; gap:6px;
+  font-size:var(--fs-xs); color:var(--danger); margin-top:5px; line-height:1.45;
+}
+.field-row{ display:grid; gap:var(--sp-3); grid-template-columns:1fr 1fr; }
+
+.pw-wrap{ position:relative; }
+.pw-wrap .input{ padding-right:52px; }
+.pw-toggle{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:40px; height:40px; border-radius:var(--r-sm);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-3); font-size:16px;
+}
+.pw-toggle:hover{ background:var(--surface-3); color:var(--text); }
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:var(--tap); padding:10px 18px;
+  border-radius:var(--r-md); border:1px solid transparent;
+  font-size:var(--fs-md); font-weight:650; letter-spacing:.01em;
+  cursor:pointer; white-space:nowrap; text-decoration:none;
+  transition:background .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease),transform .1s var(--ease);
+}
+.btn:active:not(:disabled){ transform:translateY(1px); }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-primary{ background:var(--primary); color:var(--on-primary); }
+.btn-primary:hover:not(:disabled){ background:var(--primary-hover); }
+.btn-danger{ background:var(--danger); color:var(--on-danger); }
+.btn-danger:hover:not(:disabled){ background:var(--danger-hover); }
+.btn-ghost{ background:var(--surface-2); color:var(--text-2); border-color:var(--border-strong); }
+.btn-ghost:hover:not(:disabled){ background:var(--surface-3); color:var(--text); }
+.btn-quiet{ background:transparent; color:var(--text-2); }
+.btn-quiet:hover:not(:disabled){ background:var(--surface-3); color:var(--text); }
+.btn-sm{ min-height:36px; padding:6px 12px; font-size:var(--fs-sm); font-weight:600; }
+.btn-lg{ min-height:52px; padding:14px 26px; font-size:var(--fs-lg); }
+.btn-full{ width:100%; }
+.btn-icon{ width:var(--tap); min-height:var(--tap); padding:0; flex-shrink:0; }
+.btn .spin{ animation:spin .8s linear infinite; }
+
+/* ---------- Badges / pills ---------- */
+.pill{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:var(--r-full);
+  font-size:var(--fs-xs); font-weight:700; letter-spacing:.03em;
+  white-space:nowrap; border:1px solid transparent;
+}
+.pill-open{ background:var(--info-soft); color:var(--info); border-color:var(--info-line); }
+.pill-closed{ background:var(--surface-3); color:var(--text-3); border-color:var(--border-strong); }
+.pill-pass{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok-line); }
+.pill-fail{ background:var(--danger-soft); color:var(--danger); border-color:var(--danger-line); }
+.pill-minor{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn-line); }
+.pill-draft{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent-line); }
+.pill-neutral{ background:var(--surface-3); color:var(--text-2); border-color:var(--border-strong); }
+
+/* ---------- Progress ---------- */
+.progress{
+  height:8px; width:100%; background:var(--track);
+  border-radius:var(--r-full); overflow:hidden;
+}
+.progress-fill{
+  height:100%; background:var(--primary); border-radius:var(--r-full);
+  transition:width .35s var(--ease);
+}
+.progress-fill.warn{ background:var(--warn); }
+.progress-fill.danger{ background:var(--danger); }
+.progress-fill.info{ background:var(--accent); }
+
+/* ---------- Banner ---------- */
+.banner{
+  display:flex; align-items:flex-start; gap:var(--sp-3);
+  padding:var(--sp-3) var(--sp-4);
+  border-radius:var(--r-md); border:1px solid transparent;
+  font-size:var(--fs-sm); line-height:1.55; margin-bottom:var(--sp-4);
+}
+.banner-icon{ flex-shrink:0; font-size:15px; line-height:1.4; }
+.banner-info{ background:var(--info-soft); border-color:var(--info-line); color:var(--text-2); }
+.banner-info .banner-icon{ color:var(--info); }
+.banner-ok{ background:var(--ok-soft); border-color:var(--ok-line); color:var(--text-2); }
+.banner-ok .banner-icon{ color:var(--ok); }
+.banner-warn{ background:var(--warn-soft); border-color:var(--warn-line); color:var(--text-2); }
+.banner-warn .banner-icon{ color:var(--warn); }
+.banner-danger{ background:var(--danger-soft); border-color:var(--danger-line); color:var(--text-2); }
+.banner-danger .banner-icon{ color:var(--danger); }
+.banner b{ color:var(--text); }
+
+/* ---------- Batch / lot ---------- */
+.batch{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-1);
+  margin-bottom:var(--sp-4); overflow:hidden;
+}
+.batch-head{ padding:var(--sp-4) var(--sp-5); border-bottom:1px solid var(--border); }
+.batch-name{
+  font-family:var(--mono); font-size:var(--fs-lg);
+  font-weight:750; letter-spacing:-.01em;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.batch-meta{
+  display:flex; flex-wrap:wrap; gap:4px var(--sp-4);
+  font-size:var(--fs-xs); color:var(--text-3); margin-top:6px;
+}
+.batch-meta b{ color:var(--text-2); font-weight:650; }
+.batch-kpis{ display:flex; gap:var(--sp-5); flex-wrap:wrap; margin-top:var(--sp-4); }
+.batch-kpi{ text-align:left; }
+.batch-kpi-v{ font-size:var(--fs-lg); font-weight:800; font-variant-numeric:tabular-nums; }
+.batch-kpi-l{ font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--text-3); }
+.batch-bars{ display:grid; gap:var(--sp-3); margin-top:var(--sp-4); grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+
+.lot{
+  display:flex; align-items:center; gap:var(--sp-3);
+  padding:var(--sp-3) var(--sp-5);
+  border-bottom:1px solid var(--border);
+  transition:background .12s var(--ease);
+}
+.lot:last-child{ border-bottom:none; }
+.lot:hover{ background:var(--surface-2); }
+.lot-name{ font-family:var(--mono); font-size:var(--fs-md); font-weight:700; }
+.lot-meta{ font-size:var(--fs-xs); color:var(--text-3); margin-top:2px; }
+.lot-actions{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto; }
+.lot-edit{ padding:var(--sp-4) var(--sp-5); background:var(--bg-2); border-bottom:1px solid var(--border); }
+
+/* ---------- Inspection table ---------- */
+.insp-toolbar{
+  display:flex; align-items:center; gap:var(--sp-2);
+  flex-wrap:wrap; margin-bottom:var(--sp-3);
+}
+.samp-head{
+  display:flex; align-items:center; gap:var(--sp-3);
+  padding:8px var(--sp-4);
+  background:var(--surface-2); border-bottom:1px solid var(--border);
+  font-size:10px; font-weight:750; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--text-3);
+}
+.samp-list{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--shadow-1); }
+.samp{
+  display:flex; align-items:center; gap:var(--sp-3);
+  padding:var(--sp-2) var(--sp-4);
+  border-bottom:1px solid var(--border);
+  transition:background .12s var(--ease);
+}
+.rowz{
+  display:flex; align-items:center; gap:var(--sp-3);
+  padding:var(--sp-2) var(--sp-4);
+  border-bottom:1px solid var(--border);
+  transition:background .12s var(--ease);
+}
+.samp:last-child{ border-bottom:none; }
+.samp:hover{ background:var(--surface-2); }
+.samp.fail{ background:var(--danger-soft); }
+.samp.fail:hover{ background:var(--danger-soft); }
+.samp.done{ background:var(--primary-soft); }
+.samp.done:hover{ background:var(--primary-soft); }
+
+/* `rowz` is a short alias for the same sample-row element; both class names
+   are emitted so either selector styles and targets the row. */
+.rowz:last-child{ border-bottom:none; }
+.rowz:hover{ background:var(--surface-2); }
+.rowz.fail{ background:var(--danger-soft); }
+.rowz.fail:hover{ background:var(--danger-soft); }
+.rowz.done{ background:var(--primary-soft); }
+.rowz.done:hover{ background:var(--primary-soft); }
+.rowz.fail .samp-num{ background:var(--danger-line); color:var(--danger); }
+.rowz-expand{
+  padding:var(--sp-3) var(--sp-5) var(--sp-4);
+  background:var(--bg-2); border-bottom:1px solid var(--border);
+}
+.rowz-verdict{
+  width:96px; flex-shrink:0; text-align:center;
+  padding:7px 8px; border-radius:var(--r-sm);
+  font-family:var(--mono); font-size:10px; font-weight:800; letter-spacing:.02em;
+  border:1px solid transparent;
+}
+
+.samp-num{
+  width:26px; height:26px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:var(--r-sm); background:var(--surface-3);
+  font-family:var(--mono); font-size:var(--fs-xs); font-weight:800;
+  color:var(--text-3);
+}
+.samp.fail .samp-num{ background:var(--danger-line); color:var(--danger); }
+.samp-serial{ width:210px; flex-shrink:0; }
+.samp-serial .input{ min-height:40px; padding:7px 11px; font-family:var(--mono); font-size:var(--fs-sm); }
+.samp-toggles{ display:flex; gap:5px; flex-shrink:0; }
+.tgl{
+  min-width:52px; height:40px; padding:0 9px;
+  border-radius:var(--r-sm); border:1px solid var(--border-strong);
+  background:var(--surface-2); color:var(--text-3);
+  font-size:10px; font-weight:800; letter-spacing:.03em; text-transform:uppercase;
+  display:inline-flex; align-items:center; justify-content:center; gap:3px;
+  transition:background .12s var(--ease),color .12s var(--ease),border-color .12s var(--ease);
+}
+.tgl:hover{ border-color:var(--text-4); }
+.tgl-pass{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok-line); }
+.tgl-fail{ background:var(--danger-soft); color:var(--danger); border-color:var(--danger-line); }
+.tgl-bd{ min-width:74px; background:var(--surface-2); color:var(--text-3); }
+.tgl-bd.ok{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok-line); }
+.tgl-bd.bad{ background:var(--danger-soft); color:var(--danger); border-color:var(--danger-line); }
+.samp-verdict{
+  width:96px; flex-shrink:0; text-align:center;
+  padding:7px 8px; border-radius:var(--r-sm);
+  font-family:var(--mono); font-size:10px; font-weight:800; letter-spacing:.02em;
+  border:1px solid transparent;
+}
+.v-pass{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok-line); }
+.v-minor{ background:var(--warn-soft); color:var(--warn); border-color:var(--warn-line); }
+.v-major{ background:var(--danger-soft); color:var(--danger); border-color:var(--danger-line); }
+.v-pending{ background:var(--surface-3); color:var(--text-4); border-color:var(--border-strong); }
+.samp-expand{
+  padding:var(--sp-3) var(--sp-5) var(--sp-4);
+  background:var(--bg-2); border-bottom:1px solid var(--border);
+}
+.bd-grid{ display:grid; gap:var(--sp-3); grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); align-items:end; }
+.bd-verdict{
+  padding:10px 12px; border-radius:var(--r-sm); border:1px solid transparent;
+  font-family:var(--mono); font-size:var(--fs-xs); line-height:1.5;
+}
+.bd-verdict.ok{ background:var(--ok-soft); border-color:var(--ok-line); color:var(--ok); }
+.bd-verdict.bad{ background:var(--danger-soft); border-color:var(--danger-line); color:var(--danger); }
+
+.chk{ display:inline-flex; align-items:center; gap:7px; cursor:pointer; font-size:var(--fs-sm); user-select:none; }
+.chk input{ width:18px; height:18px; accent-color:var(--primary); cursor:pointer; }
+
+/* Sticky submit bar */
+.submit-bar{
+  position:sticky; bottom:0; z-index:30;
+  display:flex; align-items:center; gap:var(--sp-4); flex-wrap:wrap;
+  margin-top:var(--sp-4); padding:var(--sp-3) var(--sp-4);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-3);
+}
+.tally{ display:flex; gap:var(--sp-5); flex-wrap:wrap; font-size:var(--fs-sm); }
+.tally-item{ display:flex; flex-direction:column; gap:2px; }
+.tally-l{ font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--text-3); }
+.tally-v{ font-family:var(--mono); font-weight:800; font-size:var(--fs-lg); }
+
+/* ---------- Modal ---------- */
+.modal{
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  padding:var(--sp-4); background:var(--overlay);
+  backdrop-filter:blur(3px);
+  animation:fade-in .15s var(--ease);
+}
+.modal-card{
+  width:100%; max-width:520px; max-height:90vh; overflow:auto;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--shadow-3);
+  animation:pop-in .2s var(--ease);
+}
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3);
+  padding:var(--sp-4) var(--sp-5); border-bottom:1px solid var(--border);
+}
+.modal-title{ font-size:var(--fs-lg); font-weight:750; }
+.modal-body{ padding:var(--sp-5); }
+.modal-foot{
+  display:flex; gap:var(--sp-2); justify-content:flex-end;
+  padding:var(--sp-4) var(--sp-5); border-top:1px solid var(--border);
+  background:var(--surface-2);
+}
+#scanVideo{
+  width:100%; border-radius:var(--r-md); background:#000;
+  aspect-ratio:4/3; object-fit:cover;
+}
+.scan-frame{
+  position:relative; margin-bottom:var(--sp-4);
+  border-radius:var(--r-md); overflow:hidden;
+}
+.scan-frame::after{
+  content:""; position:absolute; inset:22% 12%;
+  border:2px solid var(--primary); border-radius:var(--r-sm);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.35);
+  pointer-events:none;
+}
+
+/* ---------- Toast ---------- */
+.toasts{
+  position:fixed; top:var(--sp-4); right:var(--sp-4); z-index:200;
+  display:flex; flex-direction:column; gap:var(--sp-2);
+  pointer-events:none; max-width:min(360px,calc(100vw - 32px));
+}
+.toast{
+  display:flex; align-items:flex-start; gap:10px;
+  padding:12px 14px; border-radius:var(--r-md);
+  background:var(--surface); border:1px solid var(--border-strong);
+  box-shadow:var(--shadow-3); color:var(--text);
+  font-size:var(--fs-sm); font-weight:600; line-height:1.45;
+  animation:pop-in .2s var(--ease); pointer-events:auto;
+}
+.toast-icon{ flex-shrink:0; font-size:15px; }
+.toast-ok{ border-left:4px solid var(--ok); }
+.toast-ok .toast-icon{ color:var(--ok); }
+.toast-err{ border-left:4px solid var(--danger); }
+.toast-err .toast-icon{ color:var(--danger); }
+.toast-warn{ border-left:4px solid var(--warn); }
+.toast-warn .toast-icon{ color:var(--warn); }
+.toast-info{ border-left:4px solid var(--info); }
+.toast-info .toast-icon{ color:var(--info); }
+
+/* ---------- Loading / skeleton ---------- */
+.loading{
+  position:fixed; inset:0; z-index:150;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--sp-4);
+  background:var(--overlay); backdrop-filter:blur(3px);
+}
+.spinner{
+  width:34px; height:34px; border-radius:50%;
+  border:3px solid var(--border-strong); border-top-color:var(--primary);
+  animation:spin .7s linear infinite;
+}
+.loading-text{ font-size:var(--fs-sm); color:var(--text-2); font-weight:600; }
+.skeleton{
+  background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 37%,var(--surface-2) 63%);
+  background-size:400% 100%; animation:shimmer 1.4s ease infinite;
+  border-radius:var(--r-sm);
+}
+@keyframes shimmer{ 0%{ background-position:100% 0 } 100%{ background-position:-100% 0 } }
+.skel-card{ height:96px; border-radius:var(--r-lg); margin-bottom:var(--sp-4); }
+
+/* ---------- Empty state ---------- */
+.empty{
+  text-align:center; padding:var(--sp-12) var(--sp-5);
+  color:var(--text-3);
+}
+.empty-icon{ font-size:38px; margin-bottom:var(--sp-3); opacity:.5; }
+.empty-title{ font-size:var(--fs-lg); font-weight:700; color:var(--text-2); margin-bottom:var(--sp-2); }
+
+/* ---------- Table ---------- */
+.table-wrap{ overflow-x:auto; }
+.tbl{ font-size:var(--fs-sm); }
+.tbl th{
+  text-align:left; padding:10px var(--sp-4);
+  font-size:10px; font-weight:750; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--text-3); background:var(--surface-2);
+  border-bottom:1px solid var(--border); white-space:nowrap;
+}
+.tbl td{ padding:10px var(--sp-4); border-bottom:1px solid var(--border); color:var(--text-2); }
+.tbl tbody tr:hover{ background:var(--surface-2); }
+.tbl tfoot td{ font-weight:750; color:var(--text); background:var(--surface-2); }
+.tbl .num{ text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.tbl .ctr{ text-align:center; }
+
+/* ---------- Charts ---------- */
+.chart{ width:100%; height:auto; overflow:visible; }
+.chart-legend{ display:flex; flex-wrap:wrap; gap:var(--sp-4); margin-top:var(--sp-3); font-size:var(--fs-xs); color:var(--text-3); }
+.legend-item{ display:flex; align-items:center; gap:6px; }
+.legend-dot{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+/* ---------- Tabs ---------- */
+.tabs{
+  display:flex; gap:var(--sp-1); border-bottom:1px solid var(--border);
+  margin-bottom:var(--sp-4); overflow-x:auto;
+}
+.tab{
+  padding:11px var(--sp-4); font-size:var(--fs-sm); font-weight:650;
+  color:var(--text-3); border-bottom:2px solid transparent;
+  white-space:nowrap; margin-bottom:-1px;
+}
+.tab:hover{ color:var(--text); }
+.tab.active{ color:var(--primary); border-bottom-color:var(--primary); }
+
+/* ---------- Theme toggle ---------- */
+.theme-btn{
+  width:var(--tap); min-height:var(--tap);
+  display:flex; align-items:center; justify-content:center;
+  border-radius:var(--r-md); border:1px solid var(--border-strong);
+  background:var(--surface-2); font-size:16px;
+}
+.theme-btn:hover{ background:var(--surface-3); }
+
+/* ---------- Report sheet ---------- */
+.report{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:var(--sp-8);
+  margin-bottom:var(--sp-5);
+}
+.report-head{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:var(--sp-4); padding-bottom:var(--sp-5); border-bottom:2px solid var(--border-strong);
+  margin-bottom:var(--sp-5);
+}
+.report-title{ font-size:var(--fs-2xl); font-weight:800; letter-spacing:-.02em; }
+.report-sub{ font-size:var(--fs-sm); color:var(--text-3); margin-top:var(--sp-1); }
+.report-sec-title{
+  font-size:var(--fs-sm); font-weight:750; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--text-2); margin:var(--sp-6) 0 var(--sp-3);
+  padding-bottom:var(--sp-2); border-bottom:1px solid var(--border);
+}
+.report-sec-title:first-child{ margin-top:0; }
+.sign-grid{ display:grid; gap:var(--sp-8); grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-top:var(--sp-10); }
+.sign-box{ border-top:1px solid var(--border-strong); padding-top:var(--sp-2); font-size:var(--fs-xs); color:var(--text-3); }
+
+/* ---------- Responsive ---------- */
+@media (max-width:820px){
+  .hide-sm{ display:none !important; }
+  .only-sm{ display:initial !important; }
+  .main{ padding:var(--sp-3); }
+  .hdr{ padding:var(--sp-2) var(--sp-3); gap:var(--sp-2); }
+  .hdr-title{ font-size:var(--fs-md); }
+  .samp, .rowz{
+    display:grid;
+    grid-template-columns:26px 1fr;
+    grid-template-areas:"num serial" "toggles toggles" "verdict verdict";
+    gap:var(--sp-2) var(--sp-3);
+    align-items:center;
+    padding:var(--sp-3) var(--sp-3);
+  }
+  .samp-num{ grid-area:num; }
+  .samp-serial{ grid-area:serial; width:auto; }
+  .samp-toggles{ grid-area:toggles; }
+  .samp-verdict, .rowz-verdict{ grid-area:verdict; width:auto; }
+  .tgl{ flex:1; min-width:0; }
+  .samp-head{ display:none; }
+  .submit-bar{ padding:var(--sp-3); }
+  .submit-bar .btn{ width:100%; }
+  .field-row{ grid-template-columns:1fr; }
+  .report{ padding:var(--sp-4); }
+  .report-head{ flex-direction:column; }
+  .toasts{ left:var(--sp-3); right:var(--sp-3); max-width:none; }
+  .lot{ flex-wrap:wrap; }
+  .lot-actions{ width:100%; margin-left:0; justify-content:flex-start; }
+}
+
+/* ============================================================
+   PRINT — always produce a real report, never a blank page.
+   Works from dashboard, inspection, and summary.
+   ============================================================ */
+@media print{
+  @page{ size:A4 portrait; margin:12mm; }
+
+  :root{
+    --bg:#fff; --bg-2:#fff; --surface:#fff; --surface-2:#fff; --surface-3:#f4f4f5;
+    --sidebar:#fff; --text:#000; --text-2:#1f2937; --text-3:#374151; --text-4:#4b5563;
+    --border:#cbd5e1; --border-strong:#94a3b8; --track:#e5e7eb;
+  }
+  html,body{ background:#fff !important; color:#000 !important; font-size:11pt; }
+  .app,.auth-wrap{ min-height:0 !important; }
+
+  /* Hide every interactive chrome element */
+  .hdr-actions,.toasts,.modal,.loading,.submit-bar,.insp-toolbar,
+  .btn,.theme-btn,.skip,.lot-actions,.card-head .btn,.tabs,.scan-frame{ display:none !important; }
+
+  .card,.batch,.samp-list,.report,.stat,.tbl,.samp,.rowz,.lot{
+    box-shadow:none !important; break-inside:avoid;
+  }
+  .card,.batch,.report{ border:1px solid #cbd5e1 !important; }
+  .main{ padding:0 !important; max-width:none !important; }
+  .hdr{
+    position:static !important; border-bottom:1.5pt solid #000 !important;
+    padding:0 0 8pt !important; margin-bottom:10pt !important;
+  }
+  .brand-mark{ border:none !important; padding:0 !important; }
+  .batch-head,.card-head{ background:#f4f4f5 !important; }
+  .samp,.rowz,.lot{ border-bottom:1px solid #cbd5e1 !important; background:#fff !important; }
+  .samp.fail,.samp.done,.rowz.fail,.rowz.done{ background:#fff !important; }
+  .pill,.tgl,.samp-verdict,.rowz-verdict,.samp-num{ border:1px solid #94a3b8 !important; }
+  .report{ padding:0 !important; border:none !important; }
+  a[href]::after{ content:""; }
+
+  /* Print headers for tables that repeat across pages */
+  .tbl thead{ display:table-header-group; }
+  .tbl tr{ break-inside:avoid; }
+
+  /* Guarantee report-only prints show the report */
+  body[data-print-view="report"] #mainApp,
+  body[data-print-view="report"] #inspectionScreen{ display:none !important; }
+}
+</style>
+</head>
+<body data-print-view="app">
+
+<a class="skip" href="#mainRegion">Skip to main content</a>
+
+<!-- ============================================================
+     SETUP  — first run / change backend URL
+     ============================================================ -->
+<div id="setupScreen" class="auth-wrap" hidden>
+  <main class="auth-card pop">
+    <div class="auth-logo">
+      <div class="brand-mark"><img data-lumio alt="Lumio" style="height:30px"></div>
+    </div>
+    <h1 class="auth-title">Connect Backend</h1>
+    <p class="auth-sub">Paste your deployed Google Apps Script Web App URL</p>
+
+    <div style="margin-top:var(--sp-6)">
+      <div class="field-group">
+        <label class="label" for="apiInput">Web App URL</label>
+        <input id="apiInput" class="input mono" type="url" inputmode="url" autocomplete="off"
+               spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+        <div class="hint">Stored only in this browser. Must end in <code>/exec</code>.</div>
+      </div>
+      <div id="setupErr" class="banner banner-danger" hidden>
+        <span class="banner-icon">⚠</span><span id="setupErrText"></span>
+      </div>
+      <button id="btnSetup" class="btn btn-primary btn-full btn-lg">Connect &amp; Continue</button>
+      <button id="btnSetupDemo" class="btn btn-quiet btn-full" style="margin-top:var(--sp-2)">
+        Explore with demo data
+      </button>
+      <div class="hint" style="text-align:center;margin-top:var(--sp-4)">
+        Deployment must be set to <b>Execute as: Me</b> and <b>Who has access: Anyone</b>.
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     LOGIN
+     ============================================================ -->
+<div id="loginScreen" class="auth-wrap" hidden>
+  <main class="auth-card pop">
+    <div class="auth-logo">
+      <div class="brand-mark"><img data-lumio alt="Lumio" style="height:30px"></div>
+    </div>
+    <h1 class="auth-title">OBA Inspection</h1>
+    <p class="auth-sub">IS 2500 · Level G2 · Sign in to continue</p>
+
+    <form id="loginForm" style="margin-top:var(--sp-6)" novalidate>
+      <div class="field-group">
+        <label class="label" for="lUser">Username</label>
+        <input id="lUser" class="input" type="text" autocomplete="username"
+               autocapitalize="none" spellcheck="false" placeholder="e.g. inspector1" required>
+      </div>
+      <div class="field-group">
+        <label class="label" for="lPass">Password</label>
+        <div class="pw-wrap">
+          <input id="lPass" class="input" type="password" autocomplete="current-password"
+                 placeholder="••••••••" required>
+          <button type="button" id="btnPwToggle" class="pw-toggle" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <label class="chk" style="margin-bottom:var(--sp-4)">
+        <input id="lRemember" type="checkbox" checked>
+        <span>Keep me signed in for 12 hours</span>
+      </label>
+      <div id="loginErr" class="banner banner-danger" hidden>
+        <span class="banner-icon">⚠</span><span id="loginErrText"></span>
+      </div>
+      <button id="btnLogin" class="btn btn-primary btn-full btn-lg" type="submit">Sign In</button>
+      <button id="btnChgUrl" class="btn btn-quiet btn-full btn-sm" type="button" style="margin-top:var(--sp-2)">
+        Change backend URL
+      </button>
+    </form>
+  </main>
+</div>
+
+<!-- ============================================================
+     APPLICATION  — dashboard / inspection
+     ============================================================ -->
+<div id="mainApp" class="app" hidden>
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="brand-mark hide-sm"><img data-lumio alt="Lumio"></div>
+      <div style="min-width:0">
+        <div class="hdr-title" id="hdrTitle">OBA Inspection</div>
+        <div class="hdr-sub" id="hdrSub">IS 2500 | LEVEL G2 | LOT 90 | SAMPLE 13</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <span id="hdrUser" class="pill pill-neutral hide-sm"></span>
+      <button id="btnTheme" class="theme-btn" title="Toggle light / dark theme" aria-label="Toggle theme">◐</button>
+      <button id="btnNavAnalytics" class="btn btn-ghost btn-sm" hidden>📈 Analytics</button>
+      <button id="btnNavReport" class="btn btn-ghost btn-sm">🖨 Report</button>
+      <button id="btnHelp" class="btn btn-ghost btn-sm btn-icon" title="Standard reference" aria-label="Standard reference">?</button>
+      <button id="btnLogout" class="btn btn-ghost btn-sm">Sign out</button>
+    </div>
+  </header>
+
+  <main class="main" id="mainRegion"></main>
+  <footer class="footer">
+    Lumio OBA Inspection · IS 2500 Level G2 · Lot 90 / Sample 13 · Minor Ac≤1 · Major Ac=0
+  </footer>
+</div>
+
+<!-- ============================================================
+     REPORT VIEW  — print / PDF source of truth
+     ============================================================ -->
+<div id="reportScreen" class="app" hidden>
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="brand-mark"><img data-lumio alt="Lumio"></div>
+      <div>
+        <div class="hdr-title">OBA Inspection Report</div>
+        <div class="hdr-sub" id="reportHdrSub">IS 2500 | LEVEL G2 | LOT 90 | SAMPLE 13</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <button id="btnPrint" class="btn btn-primary btn-sm">🖨 Print / Save PDF</button>
+      <button id="btnReportCSV" class="btn btn-ghost btn-sm">⬇ CSV</button>
+      <button id="btnReportClose" class="btn btn-ghost btn-sm">← Back</button>
+    </div>
+  </header>
+  <main class="main" id="reportRegion"></main>
+</div>
+
+<!-- ============================================================
+     ANALYTICS VIEW
+     ============================================================ -->
+<div id="analyticsScreen" class="app" hidden>
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="brand-mark hide-sm"><img data-lumio alt="Lumio"></div>
+      <div>
+        <div class="hdr-title">Quality Analytics</div>
+        <div class="hdr-sub">Defect Pareto · Yield trend · Inspector activity</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <button id="btnAnalyticsRefresh" class="btn btn-ghost btn-sm">↻ Refresh</button>
+      <button id="btnAnalyticsClose" class="btn btn-ghost btn-sm">← Back</button>
+    </div>
+  </header>
+  <main class="main" id="analyticsRegion"></main>
+</div>
+
+<!-- Overlays -->
+<div id="toasts" class="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+<div id="modalRoot"></div>
+<div id="loadingRoot" class="loading" hidden>
+  <div class="spinner" role="progressbar" aria-label="Loading"></div>
+  <div class="loading-text" id="loadingText">Working…</div>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   LUMIO OBA INSPECTION
+   Single-file client. Talks to a Google Apps Script backend.
+
+   Compatibility contract
+   ----------------------
+   Every action the previous version used is preserved verbatim
+   (login, getBatches, getKits, createBatch, createKit, updateLot,
+   deleteLot, deleteBatch, addUser, checkSerial, submitLot) so this
+   file is a drop-in replacement on the existing deployment.
+   Newer, optional actions are feature-detected at runtime and the
+   matching UI is hidden when the backend does not provide them.
+   ============================================================ */
+
+/* ── Brand asset (declared once; injected into every <img data-lumio>) ── */
+const LOGO_DATA_URI = 'data:image/png;base64,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';
+
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const CFG = {
+  lotSize: 90,
+  sampleSize: 13,
+  bdMaxMm: 2.4,
+  minorAccepted: 1,
+  majorAccepted: 0,
+  sessionHours: 12,
+  defaultApi: ''
+};
+
+const MODEL_CODE = {
+  LH1G:     '1217',
+  LH3G:     '1218',
+  LH3G_NEW: '1213'
+};
+
+const ALL_MODELS = [
+  { key:'LH1G',     code:'1217', label:'LH1G (1217)' },
+  { key:'LH3G',     code:'1218', label:'LH3G (1218)' },
+  { key:'LH3G_NEW', code:'1213', label:'LH3G New (1213)' }
+];
+
+const LS = {
+  api:      'oba_api',
+  theme:    'oba_theme',
+  session:  'oba_session',
+  caps:     'oba_caps',
+  draftPfx: 'oba_draft_v2_'
+};
+
+const SS = { session: 'oba_session_tab' };
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const S = {
+  api: '',
+  user: null,          // {username, role, name}
+  token: null,         // optional session token from hardened backend
+  caps: {},            // backend capability map
+  batches: [],
+  activeLot: null,
+  samples: [],
+  expanded: null,
+  view: 'dashboard',   // dashboard | inspection
+  loading: false,
+  demo: false,
+  scan: null           // active scanner controller
+};
+
+/* ============================================================
+   TINY DOM / FORMAT HELPERS
+   ============================================================ */
+const $  = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.prototype.slice.call((root || document).querySelectorAll(sel));
+
+function esc(v){
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escAttr(v){ return esc(v); }
+
+/** MMYY ("0626") → "06/2026" */
+function mmyyDisp(code){
+  if(!code) return '—';
+  const c = String(code).padStart(4,'0');
+  if(c.length !== 4) return '—';
+  return c.slice(0,2) + '/20' + c.slice(2);
+}
+/** "2026-06" (month input) → "0626" */
+function mmyyFromInput(s){
+  if(!s) return '';
+  const parts = String(s).split('-');
+  if(parts.length < 2) return '';
+  return parts[1] + parts[0].slice(2);
+}
+/** "0626" → "2026-06" */
+function inputFromMmyy(c){
+  if(!c) return '';
+  const p = String(c).padStart(4,'0');
+  if(p.length !== 4) return '';
+  return '20' + p.slice(2) + '-' + p.slice(0,2);
+}
+function num(v, fallback){
+  const n = Number(v);
+  return isFinite(n) ? n : (fallback === undefined ? 0 : fallback);
+}
+function pct(a, b){ return b > 0 ? Math.round(a / b * 100) : 0; }
+function nowIso(){ return new Date().toISOString(); }
+function fmtDateTime(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d)) return String(iso);
+  return d.toLocaleString(undefined, {
+    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+  });
+}
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d)) return String(iso);
+  return d.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+}
+function initials(name){
+  const p = String(name || '?').trim().split(/\s+/);
+  return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase();
+}
+function debounce(fn, ms){
+  let t;
+  return function(){
+    const args = arguments, self = this;
+    clearTimeout(t);
+    t = setTimeout(function(){ fn.apply(self, args); }, ms);
+  };
+}
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+const TOAST_ICON = { ok:'✓', err:'✕', warn:'⚠', info:'ℹ' };
+
+/* Single source of truth for how a sample verdict is labelled and styled. */
+const VERDICT_MAP = {
+  'PASS':       ['PASS',       'v-pass'],
+  'FAIL-MINOR': ['MINOR FAIL', 'v-minor'],
+  'FAIL-MAJOR': ['MAJOR FAIL', 'v-major'],
+  'PENDING':    ['PENDING',    'v-pending']
+};
+
+function toast(msg, type){
+  type = type || 'info';
+  const root = $('#toasts');
+  if(!root) return;
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.innerHTML = '<span class="toast-icon">' + (TOAST_ICON[type] || 'ℹ') + '</span><span>' +
+                 esc(msg) + '</span>';
+  root.appendChild(el);
+  const life = type === 'err' ? 6000 : 3600;
+  setTimeout(function(){
+    el.style.transition = 'opacity .25s, transform .25s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(12px)';
+    setTimeout(function(){ el.remove(); }, 260);
+  }, life);
+  while(root.children.length > 4) root.removeChild(root.firstChild);
+}
+
+/* ============================================================
+   OVERLAY / MODAL / CONFIRM  (replaces native alert/confirm)
+   ============================================================ */
+let loadingDepth = 0;
+function showLoading(text){
+  loadingDepth++;
+  const el = $('#loadingRoot');
+  if(!el) return;
+  $('#loadingText').textContent = text || 'Working…';
+  el.hidden = false;
+}
+function hideLoading(){
+  loadingDepth = Math.max(0, loadingDepth - 1);
+  if(loadingDepth === 0){
+    const el = $('#loadingRoot');
+    if(el) el.hidden = true;
+  }
+}
+
+function openModal(opts){
+  return new Promise(function(resolve){
+    const root = $('#modalRoot');
+    const wrap = document.createElement('div');
+    wrap.className = 'modal';
+    wrap.setAttribute('role','dialog');
+    wrap.setAttribute('aria-modal','true');
+    wrap.innerHTML =
+      '<div class="modal-card" style="max-width:' + (opts.width || 520) + 'px">' +
+        '<div class="modal-head">' +
+          '<div class="modal-title">' + esc(opts.title || '') + '</div>' +
+          '<button class="btn btn-quiet btn-sm" data-x="close" aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="modal-body">' + (opts.body || '') + '</div>' +
+        (opts.footer === null ? '' :
+        '<div class="modal-foot">' + (opts.footer ||
+          '<button class="btn btn-ghost" data-x="cancel">Cancel</button>' +
+          '<button class="btn btn-primary" data-x="ok">' + esc(opts.okText || 'Confirm') + '</button>'
+        ) + '</div>') +
+      '</div>';
+
+    root.appendChild(wrap);
+
+    const prevFocus = document.activeElement;
+    const first = wrap.querySelector('input,select,textarea,button:not([data-x="close"])');
+    if(first) setTimeout(function(){ first.focus(); }, 30);
+
+    function close(val){
+      wrap.remove();
+      document.removeEventListener('keydown', onKey);
+      if(prevFocus && prevFocus.focus) prevFocus.focus();
+      resolve(val);
+    }
+    function onKey(e){
+      if(e.key === 'Escape'){ e.stopPropagation(); close(null); }
+      if(e.key === 'Enter' && opts.enterOk !== false && e.target.tagName !== 'TEXTAREA'){
+        const ok = wrap.querySelector('[data-x="ok"]');
+        if(ok){ e.preventDefault(); ok.click(); }
+      }
+    }
+    document.addEventListener('keydown', onKey);
+
+    wrap.addEventListener('click', function(e){
+      const t = e.target;
+      if(t === wrap) return close(null);
+      const x = t.getAttribute && t.getAttribute('data-x');
+      if(x === 'close' || x === 'cancel') return close(null);
+      if(x === 'ok'){
+        const getVals = opts.collect;
+        return close(getVals ? getVals(wrap) : true);
+      }
+    });
+    if(typeof opts.onMount === 'function') opts.onMount(wrap, close);
+  });
+}
+
+function confirmDialog(opts){
+  const danger = opts.danger !== false;
+  return openModal({
+    title: opts.title || 'Are you sure?',
+    width: 440,
+    body: '<p style="margin:0;line-height:1.6">' + (opts.body || '') + '</p>' +
+          (opts.detail ? '<div class="banner banner-warn" style="margin:var(--sp-4) 0 0">' +
+            '<span class="banner-icon">⚠</span><span>' + opts.detail + '</span></div>' : ''),
+    okText: opts.okText || 'Confirm',
+    footer: '<button class="btn btn-ghost" data-x="cancel">Cancel</button>' +
+            '<button class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '" data-x="ok">' +
+            esc(opts.okText || 'Confirm') + '</button>',
+    enterOk: false
+  }).then(function(v){ return v === true; });
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', theme === 'light' ? '#f1f5f9' : '#0b1220');
+  try{ localStorage.setItem(LS.theme, theme); }catch(e){}
+}
+function initTheme(){
+  let t = null;
+  try{ t = localStorage.getItem(LS.theme); }catch(e){}
+  if(!t){
+    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+      ? 'light' : 'dark';
+  }
+  applyTheme(t);
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+}
+
+/* ============================================================
+   BRAND ASSET INJECTION  (one source, many targets)
+   ============================================================ */
+function injectLogo(root){
+  $$('img[data-lumio]', root || document).forEach(function(img){
+    if(img.src !== LOGO_DATA_URI) img.src = LOGO_DATA_URI;
+  });
+}
+
+/* ============================================================
+   SESSION  — survives refresh, expires, never stores a password
+   ============================================================ */
+function saveSession(){
+  if(!S.user) return;
+  const payload = {
+    user: S.user,
+    token: S.token,
+    api: S.api,
+    expiresAt: Date.now() + CFG.sessionHours * 3600 * 1000
+  };
+  let raw;
+  try{ raw = JSON.stringify(payload); }
+  catch(e){ console.warn('OBA: session could not be serialised', e); return; }
+
+  const rememberEl = $('#lRemember');
+  const persist = rememberEl ? !!rememberEl.checked : true;
+
+  /* Primary store, then the fallback store. A failure here must never be
+     silent — losing the session means the user has to sign in again. */
+  try{
+    if(persist){
+      localStorage.setItem(LS.session, raw);
+      try{ sessionStorage.removeItem(SS.session); }catch(e){}
+    } else {
+      sessionStorage.setItem(SS.session, raw);
+      try{ localStorage.removeItem(LS.session); }catch(e){}
+    }
+    return;
+  }catch(e){
+    console.warn('OBA: primary session store unavailable, trying fallback', e);
+  }
+  try{
+    sessionStorage.setItem(SS.session, raw);
+  }catch(e){
+    console.warn('OBA: session could not be persisted at all', e);
+  }
+}
+function readSession(){
+  try{
+    const raw = sessionStorage.getItem(SS.session) || localStorage.getItem(LS.session);
+    if(!raw) return null;
+    const p = JSON.parse(raw);
+    if(!p || !p.user || !p.expiresAt) return null;
+    if(Date.now() > p.expiresAt){ clearSession(); return null; }
+    return p;
+  }catch(e){ return null; }
+}
+function clearSession(){
+  try{ localStorage.removeItem(LS.session); }catch(e){}
+  try{ sessionStorage.removeItem(SS.session); }catch(e){}
+}
+
+/* ============================================================
+   BACKEND CLIENT
+   ============================================================ */
+let lastNetError = '';
+
+async function api(action, data, opts){
+  opts = opts || {};
+  const body = Object.assign({}, data || {}, { action: action });
+  if(S.token) body.token = S.token;
+  if(S.user && S.user.username) body.sessionUser = S.user.username;
+
+  const ctrl = ('AbortController' in window) ? new AbortController() : null;
+  const to = setTimeout(function(){ if(ctrl) ctrl.abort(); }, opts.timeout || 25000);
+
+  if(S.demo) return demoApi(action, body);
+
+  try{
+    const res = await fetch(S.api, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body),
+      signal: ctrl ? ctrl.signal : undefined,
+      redirect: 'follow'
+    });
+    clearTimeout(to);
+
+    const text = await res.text();
+
+    if(text.trim().charAt(0) === '<'){
+      lastNetError = 'deployment';
+      return {
+        ok: false,
+        error: 'The backend returned an HTML page instead of data. The Web App URL is wrong, ' +
+               'or the script needs to be redeployed as a new version.',
+        code: 'HTML_RESPONSE'
+      };
+    }
+    let parsed;
+    try{ parsed = JSON.parse(text); }
+    catch(e){
+      lastNetError = 'parse';
+      return { ok:false, error:'Backend returned malformed data.', code:'BAD_JSON', raw:text.slice(0,200) };
+    }
+    if(parsed && parsed.ok === false && typeof parsed.error === 'string' &&
+       parsed.error.toLowerCase().indexOf('unknown') !== -1){
+      parsed.code = 'UNKNOWN_ACTION';
+    }
+    return parsed;
+  }catch(err){
+    clearTimeout(to);
+    const aborted = err && (err.name === 'AbortError');
+    lastNetError = aborted ? 'timeout' : 'network';
+    return {
+      ok: false,
+      code: aborted ? 'TIMEOUT' : 'NETWORK',
+      error: aborted
+        ? 'Request timed out. The connection is slow or the backend is busy — your data is saved locally.'
+        : 'Network error: ' + (err && err.message ? err.message : 'unknown') +
+          '. Check your connection — your data is saved locally.'
+    };
+  }
+}
+
+/**
+ * Probe once for optional (hardened) backend actions.
+ * Anything unavailable is hidden rather than shown broken.
+ */
+async function detectCapabilities(){
+  try{
+    const cached = JSON.parse(localStorage.getItem(LS.caps) || 'null');
+    if(cached && cached.api === S.api && Date.now() - cached.at < 864e5){
+      S.caps = cached.caps || {};
+      return S.caps;
+    }
+  }catch(e){}
+
+  const caps = { validate:false, analytics:false, units:false, photos:false, token:false };
+  const probe = await api('capabilities', {}, { timeout: 12000 });
+  if(probe && probe.ok && probe.capabilities){
+    Object.assign(caps, probe.capabilities);
+  } else if(probe && probe.code === 'UNKNOWN_ACTION'){
+    /* legacy backend: leave everything false */
+  }
+  S.caps = caps;
+  try{ localStorage.setItem(LS.caps, JSON.stringify({ api:S.api, at:Date.now(), caps:caps })); }catch(e){}
+  return caps;
+}
+
+async function loadBatches(opts){
+  opts = opts || {};
+  if(S.demo){ S.batches = demoBatches(); return { ok:true }; }
+
+  let r = await api('getBatches');
+
+  /* Legacy fallback: older scripts expose getKits instead. */
+  if(!r.ok && r.code === 'UNKNOWN_ACTION'){
+    r = await api('getKits');
+    if(r.ok && r.kits){
+      r.batches = r.kits.map(function(k){
+        return {
+          batchName:      k.kitName || k.batchName || '',
+          lotNumber:      k.lotNumber || '',
+          lotSize:        num(k.lotSize, CFG.lotSize),
+          sampleSize:     num(k.sampleSize, CFG.sampleSize),
+          bdMax:          num(k.bdMax, CFG.bdMaxMm),
+          status:         k.status || 'Open',
+          createdBy:      k.createdBy || '',
+          createdAt:      k.createdAt || '',
+          result:         k.result || '',
+          batchQty:       num(k.kitTotalQty || k.batchQty, 0),
+          totalLots:      num(k.totalLots, 0),
+          model:          k.model || '',
+          prodMonthCode:  k.prodMonthCode || '',
+          prodMonthCode2: k.prodMonthCode2 || '',
+          fgPassQty:      num(k.fgPassQty, 0)
+        };
+      });
+    }
+  }
+
+  if(r.ok){
+    S.batches = (r.batches || []).map(normalizeLot);
+    return { ok:true };
+  }
+  return r;
+}
+
+function normalizeLot(b){
+  return {
+    batchName:      b.batchName || b.kitName || '',
+    lotNumber:      b.lotNumber || '',
+    lotSize:        num(b.lotSize, CFG.lotSize),
+    sampleSize:     num(b.sampleSize, CFG.sampleSize),
+    bdMax:          num(b.bdMax, CFG.bdMaxMm),
+    status:         b.status || 'Open',
+    createdBy:      b.createdBy || '',
+    createdAt:      b.createdAt || '',
+    result:         b.result || '',
+    batchQty:       num(b.batchQty, 0),
+    totalLots:      num(b.totalLots, 0),
+    model:          b.model || '',
+    prodMonthCode:  b.prodMonthCode || '',
+    prodMonthCode2: b.prodMonthCode2 || '',
+    fgPassQty:      num(b.fgPassQty, 0)
+  };
+}
+
+/* ============================================================
+   DRAFTS  — resilient local autosave, per user + lot
+   ============================================================ */
+function draftKey(lot){
+  return LS.draftPfx + (S.user ? S.user.username : 'anon') + '_' +
+         lot.batchName + '_' + lot.lotNumber;
+}
+function saveDraft(){
+  if(!S.activeLot || !S.samples.length) return;
+  S.samples.forEach(function(s){
+    if(!s.inspectedAt && sampleResult(s) !== 'PENDING') s.inspectedAt = nowIso();
+  });
+  try{
+    localStorage.setItem(draftKey(S.activeLot), JSON.stringify({
+      v: 2,
+      lot: S.activeLot,
+      samples: S.samples,
+      lotRemarks: ($('#lotRemarks') || {}).value || '',
+      savedAt: nowIso()
+    }));
+  }catch(e){ /* quota / private mode — non-fatal */ }
+}
+function loadDraft(lot){
+  try{
+    const raw = localStorage.getItem(draftKey(lot));
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function clearDraft(lot){
+  try{ localStorage.removeItem(draftKey(lot)); }catch(e){}
+}
+/** All drafts for the signed-in user, newest first. */
+function listDrafts(){
+  const out = [];
+  const pfx = LS.draftPfx + (S.user ? S.user.username : 'anon') + '_';
+  try{
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf(pfx) === 0){
+        try{
+          const d = JSON.parse(localStorage.getItem(k));
+          if(d && d.samples) out.push(Object.assign({ key:k }, d));
+        }catch(e){}
+      }
+    }
+  }catch(e){}
+  return out.sort(function(a,b){
+    return new Date(b.savedAt || 0) - new Date(a.savedAt || 0);
+  });
+}
+
+/* ============================================================
+   DOMAIN LOGIC  — preserved from the original implementation
+   ============================================================ */
+
+/** 15-digit serial: 4 model + 4 MMYY + 7 sequence */
+function validateSerial(serial, model, pmc, used, pmc2){
+  const s = String(serial || '').trim().toUpperCase();
+  if(!/^\d{15}$/.test(s)) return 'Must be exactly 15 digits';
+  if(/^0{15}$/.test(s))  return 'Serial cannot be all zeros';
+
+  const expected = MODEL_CODE[model] || '';
+  if(expected && s.substring(0,4) !== expected){
+    const lbl = (ALL_MODELS.filter(function(m){ return m.key === model; })[0] || {}).label || model;
+    return 'Model code must be ' + expected + ' for ' + lbl + ' — got ' + s.substring(0,4);
+  }
+
+  let a = String(pmc || '').trim();  if(a.length === 3) a = '0' + a;
+  let b = String(pmc2 || '').trim(); if(b.length === 3) b = '0' + b;
+  const serialMonth = s.substring(4,8);
+  const valid = [a,b].filter(Boolean);
+  if(valid.length && valid.indexOf(serialMonth) === -1){
+    const labels = valid.map(function(m){ return m + ' (' + mmyyDisp(m) + ')'; }).join(' or ');
+    return 'Month code must be ' + labels + ' — got ' + serialMonth;
+  }
+  const mm = parseInt(s.substring(4,6), 10);
+  if(isNaN(mm) || mm < 1 || mm > 12) return 'Month digits invalid (01–12)';
+  if(!/^\d{7}$/.test(s.substring(8))) return 'Last 7 digits must be numeric';
+
+  const modelCode = s.substring(0,4);
+  const known = Object.keys(MODEL_CODE).map(function(k){ return MODEL_CODE[k]; });
+  if(known.indexOf(modelCode) === -1){
+    return 'Unknown model prefix "' + modelCode + '" (expected ' + known.join('/') + ')';
+  }
+
+  if((used || []).indexOf(s) !== -1) return 'Duplicate serial within this lot';
+  return '';
+}
+
+/** IS 2500 black-dot evaluation (unchanged rule set) */
+function evalBD(s){
+  if(s.bdNoDot)     return { ok:true,  reason:'No black dot — acceptable' };
+  if(!s.bdVisible)  return { ok:true,  reason:'Not visible at 2 m — acceptable at any quantity' };
+
+  const D  = parseFloat(s.bdD)  || 0;
+  const N  = parseInt(s.bdN, 10) || 0;
+  const DS = parseFloat(s.bdDS) || 0;
+
+  if(!s.bdD) return { ok:false, reason:'Enter the dot diameter D to evaluate' };
+  if(D > CFG.bdMaxMm) return { ok:false, reason:'D=' + D + ' mm > ' + CFG.bdMaxMm + ' mm — FAIL (major)' };
+  if(N > 3)  return { ok:false, reason:'N=' + N + ' > 3 — FAIL' };
+  if(!s.bdDS) return { ok:false, reason:'Enter the dot separation DS to evaluate' };
+  if(DS < 15) return { ok:false, reason:'DS=' + DS + ' mm < 15 mm — FAIL' };
+  if(D <= 1.28) return { ok:true, reason:'D=' + D + ' mm ≤ 1.28 mm, N=' + N + ', DS=' + DS + ' mm — OK' };
+
+  const area = s.bdArea || 'A';
+  if(area === 'A')   return N <= 1 ? { ok:true, reason:'D=' + D + ' mm in Area A, N=' + N + ' ≤ 1 — OK' }
+                                   : { ok:false, reason:'Area A: N=' + N + ' > 1 — FAIL' };
+  if(area === 'B')   return N <= 3 ? { ok:true, reason:'D=' + D + ' mm in Area B, N=' + N + ' ≤ 3 — OK' }
+                                   : { ok:false, reason:'Area B: N=' + N + ' > 3 — FAIL' };
+  return N <= 3 ? { ok:true, reason:'D=' + D + ' mm in Area A+B, N=' + N + ' ≤ 3 — OK' }
+                : { ok:false, reason:'Area A+B: N=' + N + ' > 3 — FAIL' };
+}
+
+function sampleResult(s){
+  if(!s.serial || s.serialError) return 'PENDING';
+  const bd = evalBD(s);
+  const major = !s.generalPass || !s.funcPass || !s.screenPass || !bd.ok;
+  const minor = !s.aestheticPass;
+  if(major) return 'FAIL-MAJOR';
+  if(minor) return 'FAIL-MINOR';
+  return 'PASS';
+}
+
+function freshSamples(n){
+  return Array.from({ length:n }, function(_, i){
+    return {
+      num: i + 1,
+      serial: '', serialError: '',
+      aestheticPass: true, generalPass: true, funcPass: true, screenPass: true,
+      bdNoDot: true, bdVisible: false,
+      bdD: '', bdN: '', bdDS: '', bdArea: 'A',
+      remark: '', inspectedAt: ''
+    };
+  });
+}
+
+function tallyLot(){
+  let minor = 0, major = 0, passed = 0, pending = 0;
+  S.samples.forEach(function(s){
+    const r = sampleResult(s);
+    if(r === 'FAIL-MINOR') minor++;
+    else if(r === 'FAIL-MAJOR') major++;
+    else if(r === 'PASS') passed++;
+    else pending++;
+  });
+  const filled = S.samples.length - pending;
+  return {
+    minor: minor, major: major, passed: passed, pending: pending, filled: filled,
+    total: S.samples.length,
+    verdict: (minor <= CFG.minorAccepted && major <= CFG.majorAccepted) ? 'PASS' : 'FAIL'
+  };
+}
+
+/** Defect categories for analytics / Pareto. */
+function defectList(s){
+  const out = [];
+  if(!s.aestheticPass) out.push({ cat:'Aesthetic',    sev:'minor' });
+  if(!s.generalPass)   out.push({ cat:'General',      sev:'major' });
+  if(!s.funcPass)      out.push({ cat:'Functional',   sev:'major' });
+  if(!s.screenPass)    out.push({ cat:'Screen',       sev:'major' });
+  const bd = evalBD(s);
+  if(!bd.ok)           out.push({ cat:'Black Dot',    sev:'major' });
+  return out;
+}
+
+/* ============================================================
+   GROUPING
+   ============================================================ */
+function groupBatches(){
+  const map = {}, order = [];
+  S.batches.forEach(function(b){
+    const n = b.batchName || '(unnamed)';
+    if(!map[n]){ map[n] = []; order.push(n); }
+    map[n].push(b);
+  });
+
+  return order.map(function(name){
+    const lots = map[name].slice().sort(function(a,b){
+      const na = parseInt(String(a.lotNumber).replace(/\D+/g,''), 10) || 0;
+      const nb = parseInt(String(b.lotNumber).replace(/\D+/g,''), 10) || 0;
+      return na - nb;
+    });
+    const completed = lots.filter(function(l){ return l.status === 'Closed'; }).length;
+    const pending   = lots.filter(function(l){ return l.status === 'Open'; }).length;
+    const passLots  = lots.filter(function(l){ return l.result === 'PASS'; }).length;
+    const failLots  = lots.filter(function(l){ return l.result === 'FAIL'; }).length;
+    const fgTotal   = lots.reduce(function(s,l){ return s + num(l.fgPassQty); }, 0);
+    const head      = lots[0] || {};
+    return {
+      name: name, lots: lots,
+      batchQty:  num(head.batchQty),
+      totalLots: num(head.totalLots) || lots.length,
+      completed: completed, pending: pending,
+      passLots: passLots, failLots: failLots, fgTotal: fgTotal,
+      model: head.model || '',
+      prodMonthCode: head.prodMonthCode || '',
+      prodMonthCode2: head.prodMonthCode2 || ''
+    };
+  });
+}
+
+function globalTotals(){
+  const lots      = S.batches;
+  const totalLots = lots.length;
+  const done      = lots.filter(function(b){ return b.status === 'Closed'; }).length;
+  const pass      = lots.filter(function(b){ return b.result === 'PASS'; }).length;
+  const fail      = lots.filter(function(b){ return b.result === 'FAIL'; }).length;
+  const open      = lots.filter(function(b){ return b.status === 'Open'; }).length;
+  const fg        = lots.reduce(function(s,b){ return s + num(b.fgPassQty); }, 0);
+  const batchQty  = groupBatches().reduce(function(s,g){ return s + g.batchQty; }, 0);
+  return {
+    totalLots: totalLots, done: done, pass: pass, fail: fail, open: open, fg: fg,
+    batchQty: batchQty, batches: groupBatches().length,
+    yieldPct: done > 0 ? (pass / done * 100) : 0,
+    progressPct: pct(done, totalLots)
+  };
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  initTheme();
+  injectLogo();
+  bindGlobalEvents();
+
+  /* Debug handle — convenient from the browser console, and used by the
+     automated smoke test. Read-only by convention. */
+  window.__S = S;
+  window.__cfg = CFG;
+
+  let savedApi = '';
+  try{ savedApi = localStorage.getItem(LS.api) || ''; }catch(e){}
+  S.api = savedApi || CFG.defaultApi;
+
+  const sess = readSession();
+  if(sess && sess.api){ S.api = sess.api; }
+
+  if(!S.api) return showScreen('setup');
+
+  if(sess && sess.user){
+    S.user  = sess.user;
+    S.token = sess.token || null;
+    showScreen('app');
+    renderApp();
+    refreshAll({ silent:true });
+    return;
+  }
+  showScreen('login');
+}
+
+function showScreen(which){
+  const map = {
+    setup:     '#setupScreen',
+    login:     '#loginScreen',
+    app:       '#mainApp',
+    report:    '#reportScreen',
+    analytics: '#analyticsScreen'
+  };
+  Object.keys(map).forEach(function(k){
+    const el = $(map[k]);
+    if(el) el.hidden = (k !== which);
+  });
+  injectLogo();
+  if(which === 'setup'){
+    const el = $('#apiInput');
+    if(el) el.value = S.api || '';
+  }
+  if(which === 'login'){
+    const el = $('#lUser');
+    if(el) setTimeout(function(){ el.focus(); }, 60);
+  }
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   APP RENDER  (dashboard / inspection)
+   ============================================================ */
+function renderApp(){
+  const region = $('#mainRegion');
+  if(!region) return;
+
+  if($('#hdrUser')) $('#hdrUser').textContent = S.user ? (S.user.name + ' · ' + S.user.role) : '';
+  if($('#btnNavAnalytics')) $('#btnNavAnalytics').hidden = !S.caps.analytics;
+
+  if(S.view === 'inspection' && S.activeLot){
+    region.innerHTML = buildInspection();
+    $('#hdrTitle').textContent = S.activeLot.batchName + ' — ' + S.activeLot.lotNumber;
+    $('#hdrSub').textContent =
+      'LOT ' + S.activeLot.lotSize + ' | SAMPLE ' + S.activeLot.sampleSize +
+      ' | MODEL ' + (S.activeLot.model || '—') + ' (' + (MODEL_CODE[S.activeLot.model] || '—') + ')' +
+      ' | PROD ' + mmyyDisp(S.activeLot.prodMonthCode) +
+      (S.activeLot.prodMonthCode2 ? ' / ' + mmyyDisp(S.activeLot.prodMonthCode2) : '') +
+      ' | BD ≤ ' + S.activeLot.bdMax + ' mm';
+  } else {
+    region.innerHTML = buildDashboard();
+    $('#hdrTitle').textContent = 'OBA Inspection';
+    $('#hdrSub').textContent = 'IS 2500 | LEVEL G2 | LOT ' + CFG.lotSize + ' | SAMPLE ' + CFG.sampleSize;
+  }
+  region.classList.remove('screen-enter');
+  void region.offsetWidth;
+  region.classList.add('screen-enter');
+  bindAppEvents();
+  injectLogo(region);
+}
+
+/* ---------- Dashboard ---------- */
+function buildDashboard(){
+  if(S.loading && !S.batches.length) return buildSkeletons();
+
+  const t = globalTotals();
+  const groups = groupBatches();
+  const isAdmin = S.user && S.user.role === 'admin';
+  const drafts = listDrafts();
+  let html = '';
+
+  if(S.demo){
+    html += banner('info', 'Demo mode',
+      'This is sample data for exploring the interface. No backend is connected and nothing is saved. ' +
+      '<button class="btn btn-quiet btn-sm" id="btnExitDemo" style="margin-left:6px">Connect a real backend</button>');
+  }
+
+  /* KPI row */
+  html += '<div class="grid-kpi" style="margin-bottom:var(--sp-4)">' +
+    stat('Batches', t.batches, null, null, '') +
+    stat('Total lots', t.totalLots, null, null, '') +
+    stat('Completed', t.done + ' / ' + t.totalLots, 'info', t.progressPct + '% complete',
+         '<div class="progress" style="margin-top:8px"><div class="progress-fill info" style="width:' +
+         t.progressPct + '%"></div></div>') +
+    stat('Passed', t.pass, 'ok', null, '') +
+    stat('Failed', t.fail, t.fail > 0 ? 'danger' : null, null, '') +
+    stat('Pending', t.open, t.open > 0 ? 'warn' : null, null, '') +
+    stat('FG released', t.fg, 'ok', 'of ' + t.batchQty + ' units', '') +
+    stat('Yield', (t.done ? t.yieldPct.toFixed(1) : '0.0') + '%', 'info', 'passed / completed', '') +
+  '</div>';
+
+  /* Resumable drafts */
+  if(drafts.length){
+    html += '<div class="card pop">' +
+      '<div class="card-head"><div class="card-title">📝 Unfinished inspections (' + drafts.length + ')</div>' +
+      '<button class="btn btn-quiet btn-sm" id="btnClearDrafts">Discard all</button></div>' +
+      '<div>';
+    drafts.forEach(function(d){
+      const filled = d.samples.filter(function(s){ return s.serial; }).length;
+      html += '<div class="lot">' +
+        '<div class="grow">' +
+          '<div class="lot-name">' + esc((d.lot && d.lot.lotNumber) || '?') + '</div>' +
+          '<div class="lot-meta">' + esc((d.lot && d.lot.batchName) || '') +
+            ' · saved ' + esc(fmtDateTime(d.savedAt)) + '</div>' +
+        '</div>' +
+        '<div class="lot-actions">' +
+          '<span class="pill pill-draft">' + filled + '/' + d.samples.length + ' filled</span>' +
+          '<button class="btn btn-primary btn-sm" data-resume="' + escAttr(d.key) + '">Resume</button>' +
+          '<button class="btn btn-quiet btn-sm" data-dropdraft="' + escAttr(d.key) + '" ' +
+            'aria-label="Discard draft">✕</button>' +
+        '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  /* Admin tools */
+  if(isAdmin){
+    html += '<div class="grid grid-auto-280">' +
+      '<div class="card"><div class="card-head"><div class="card-title">Create batch</div></div>' +
+      '<div class="card-body">' +
+        field('Batch name', '<input id="bName" class="input" type="text" placeholder="e.g. LH1G-JUN-2026" autocapitalize="characters">') +
+        field('Total quantity (units)',
+              '<input id="bQty" class="input mono" type="number" min="1" inputmode="numeric" placeholder="e.g. 2000">' +
+              '<div class="hint" id="bQtyHint">Lots = quantity ÷ ' + CFG.lotSize + ' (remainder becomes a shorter final lot).</div>') +
+        field('Model', modelSelect('bModel', '')) +
+        '<div class="field-row">' +
+          field('Production month 1', '<input id="bMonth" class="input" type="month">') +
+          field('Production month 2 <span class="opt">(optional)</span>', '<input id="bMonth2" class="input" type="month">') +
+        '</div>' +
+        '<button id="btnCreateBatch" class="btn btn-primary btn-full">Create batch</button>' +
+        '<div id="createMsg" style="margin-top:var(--sp-3)"></div>' +
+      '</div></div>' +
+
+      '<div class="card"><div class="card-head"><div class="card-title">Add user</div></div>' +
+      '<div class="card-body">' +
+        field('Username', '<input id="uUser" class="input" type="text" autocapitalize="none" spellcheck="false">') +
+        field('Password',
+              '<div class="pw-wrap"><input id="uPass" class="input" type="password" autocomplete="new-password">' +
+              '<button type="button" class="pw-toggle" data-pwtoggle="uPass" aria-label="Show password">👁</button></div>' +
+              '<div class="hint">Sent as a SHA-256 hash when the hardened backend is deployed; otherwise sent as-is for the legacy backend.</div>') +
+        field('Full name', '<input id="uName" class="input" type="text">') +
+        field('Role', '<select id="uRole" class="select"><option value="inspector">Inspector</option><option value="admin">Admin</option></select>') +
+        '<button id="btnAddUser" class="btn btn-ghost btn-full">Add user</button>' +
+        '<div id="addUserMsg" style="margin-top:var(--sp-3)"></div>' +
+      '</div></div>' +
+
+      '<div class="card"><div class="card-head"><div class="card-title">Quick actions</div></div>' +
+      '<div class="card-body col">' +
+        '<button id="btnRefresh" class="btn btn-ghost btn-full">↻ Refresh data</button>' +
+        '<button id="btnSummary" class="btn btn-ghost btn-full">📄 Open report</button>' +
+        '<button id="btnCSV" class="btn btn-ghost btn-full">⬇ Export CSV</button>' +
+        '<div class="hint">Report opens a print-ready sheet — use your browser\'s “Save as PDF”.</div>' +
+      '</div></div>' +
+    '</div>';
+  } else {
+    html += '<div class="row-wrap" style="margin-bottom:var(--sp-4)">' +
+      '<button id="btnRefresh" class="btn btn-ghost btn-sm">↻ Refresh</button>' +
+      '<button id="btnSummary" class="btn btn-ghost btn-sm">📄 Report</button>' +
+      '<button id="btnCSV" class="btn btn-ghost btn-sm">⬇ CSV</button>' +
+    '</div>';
+  }
+
+  /* Info banner */
+  html += banner('info', 'IS 2500 acceptance criteria',
+    '<b>Lot</b> ' + CFG.lotSize + ' units · <b>Sample</b> ' + CFG.sampleSize + ' units · ' +
+    '<b>Minor</b> (aesthetic) Ac ≤ ' + CFG.minorAccepted + ' · ' +
+    '<b>Major</b> (general / functional / screen / black dot) Ac = 0.<br>' +
+    '<b>Black dot:</b> not visible @2 m → OK · D ≤ 1.28 mm, N ≤ 3, DS ≥ 15 mm → OK · ' +
+    '1.28 &lt; D ≤ 2.4 mm → Area A (N ≤ 1) / Area B (N ≤ 3) / A+B (N ≤ 3) · D &gt; 2.4 mm → FAIL.');
+
+  /* Batch list */
+  if(!groups.length){
+    html += '<div class="empty"><div class="empty-icon">📦</div>' +
+      '<div class="empty-title">No batches yet</div>' +
+      '<div>' + (isAdmin ? 'Create your first batch using the form above.'
+                         : 'Ask an administrator to create a batch.') + '</div></div>';
+  } else {
+    groups.forEach(function(g){ html += buildBatchBlock(g, isAdmin); });
+  }
+
+  return html;
+}
+
+function buildSkeletons(){
+  let h = '<div class="grid-kpi" style="margin-bottom:var(--sp-4)">';
+  for(let i = 0; i < 8; i++) h += '<div class="skeleton" style="height:92px;border-radius:var(--r-md)"></div>';
+  h += '</div>';
+  for(let i = 0; i < 3; i++) h += '<div class="skeleton skel-card"></div>';
+  return h;
+}
+
+function buildBatchBlock(g, isAdmin){
+  const p = pct(g.completed, g.totalLots);
+  const fgP = pct(g.fgTotal, g.batchQty);
+  let html = '<div class="batch pop">' +
+    '<div class="batch-head">' +
+      '<div class="between" style="align-items:flex-start">' +
+        '<div class="grow">' +
+          '<div class="batch-name">' + esc(g.name) +
+            (g.failLots > 0 ? ' <span class="pill pill-fail">' + g.failLots + ' failed</span>' : '') +
+          '</div>' +
+          '<div class="batch-meta">' +
+            '<span>Model <b>' + esc(g.model || '—') + '</b></span>' +
+            '<span>Prod month <b>' + mmyyDisp(g.prodMonthCode) +
+              (g.prodMonthCode2 ? ' / ' + mmyyDisp(g.prodMonthCode2) : '') + '</b></span>' +
+            '<span>Batch qty <b>' + g.batchQty + '</b></span>' +
+            '<span>Lots <b>' + g.totalLots + '</b></span>' +
+            '<span>FG released <b style="color:var(--ok)">' + g.fgTotal + '</b></span>' +
+          '</div>' +
+        '</div>' +
+        (isAdmin ? '<button class="btn btn-danger btn-sm" data-delbatch="' + escAttr(g.name) + '">Delete batch</button>' : '') +
+      '</div>' +
+      '<div class="batch-kpis">' +
+        kpi('Completed', g.completed + '/' + g.totalLots) +
+        kpi('Pass', g.passLots, 'var(--ok)') +
+        kpi('Fail', g.failLots, g.failLots ? 'var(--danger)' : 'var(--text-4)') +
+        kpi('Pending', g.pending, g.pending ? 'var(--warn)' : 'var(--text-4)') +
+      '</div>' +
+      '<div class="batch-bars">' +
+        '<div><div class="tiny muted" style="margin-bottom:5px">Lot progress — ' + p + '%</div>' +
+          '<div class="progress"><div class="progress-fill" style="width:' + p + '%"></div></div></div>' +
+        '<div><div class="tiny muted" style="margin-bottom:5px">FG release — ' + fgP + '%</div>' +
+          '<div class="progress"><div class="progress-fill' + (fgP >= 100 ? '' : ' info') + '" style="width:' + fgP + '%"></div></div></div>' +
+      '</div>' +
+    '</div>';
+
+  g.lots.forEach(function(lot){
+    const draft = loadDraft(lot);
+    const filled = draft ? draft.samples.filter(function(s){ return s.serial; }).length : 0;
+    const canInspect = lot.status === 'Open';
+    html += '<div class="lot">' +
+      '<div class="grow">' +
+        '<div class="lot-name">' + esc(lot.lotNumber) + '</div>' +
+        '<div class="lot-meta">Size ' + lot.lotSize + ' · Sample ' + lot.sampleSize +
+          ' · BD ≤ ' + lot.bdMax + ' mm' +
+          (lot.createdAt ? ' · ' + esc(fmtDate(lot.createdAt)) : '') + '</div>' +
+      '</div>' +
+      '<div class="lot-actions">' +
+        '<span class="pill ' + (lot.status === 'Open' ? 'pill-open' : 'pill-closed') + '">' +
+          esc(lot.status) + '</span>' +
+        (lot.result ? '<span class="pill ' + (lot.result === 'PASS' ? 'pill-pass' : 'pill-fail') + '">' +
+          esc(lot.result) + '</span>' : '') +
+        (draft ? '<span class="pill pill-draft">Draft ' + filled + '/' + draft.samples.length + '</span>' : '') +
+        (num(lot.fgPassQty) > 0 ? '<span class="tiny mono muted">FG ' + lot.fgPassQty + '</span>' : '') +
+        (canInspect ? '<button class="btn btn-primary btn-sm" data-start="' +
+          escAttr(lot.batchName + '||' + lot.lotNumber) + '">' +
+          (draft ? 'Resume' : 'Inspect') + '</button>' : '') +
+        (isAdmin ? '<button class="btn btn-ghost btn-sm" data-editlot="' +
+          escAttr(lot.batchName + '||' + lot.lotNumber) + '">Edit</button>' : '') +
+        (isAdmin ? '<button class="btn btn-quiet btn-sm" data-dellot="' +
+          escAttr(lot.batchName + '||' + lot.lotNumber) + '" aria-label="Delete lot">🗑</button>' : '') +
+      '</div>' +
+    '</div>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+/* ---------- Inspection ---------- */
+function buildInspection(){
+  const lot = S.activeLot;
+  const t = tallyLot();
+  const allReady = t.filled === t.total &&
+                   S.samples.every(function(s){ return s.serial && !s.serialError; });
+  const scanOk = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+  let html = '';
+
+  html += '<div class="insp-toolbar">' +
+    '<button id="btnBackInsp" class="btn btn-ghost btn-sm">← Back to dashboard</button>' +
+    (scanOk ? '<button id="btnScan" class="btn btn-primary btn-sm">📷 Scan barcode</button>' : '') +
+    '<button id="btnBulk" class="btn btn-ghost btn-sm">⇥ Paste serials</button>' +
+    '<button id="btnAutofill" class="btn btn-ghost btn-sm" title="Fill remaining serials in sequence">⚡ Autofill sequence</button>' +
+    '<button id="btnClearSerials" class="btn btn-quiet btn-sm">Clear serials</button>' +
+  '</div>';
+
+  if(S.caps.units){
+    html += banner('ok', 'Server validation active',
+      'This backend re-computes the lot verdict independently and records an audit trail.');
+  } else if(!S.demo){
+    html += banner('warn', 'Client-side verdict',
+      'This backend trusts the verdict sent by the browser. Deploy the hardened Apps Script ' +
+      '(see <b>README-apps-script.md</b>) to have results validated server-side.');
+  }
+
+  html += '<div class="samp-list">' +
+    '<div class="samp-head">' +
+      '<div style="width:26px"></div>' +
+      '<div style="width:210px">Serial number</div>' +
+      '<div class="grow">Aesthetic · General · Functional · Screen · Black dot</div>' +
+      '<div style="width:96px;text-align:center">Verdict</div>' +
+    '</div>';
+
+  S.samples.forEach(function(s, i){ html += buildSampleRow(s, i); });
+  html += '</div>';
+
+  /* Sticky submit bar */
+  html += '<div class="submit-bar">' +
+    '<div class="tally">' +
+      tallyItem('Filled', t.filled + '/' + t.total, t.filled === t.total ? 'var(--ok)' : 'var(--warn)') +
+      tallyItem('Minor', t.minor + ' / ' + CFG.minorAccepted, t.minor <= CFG.minorAccepted ? 'var(--ok)' : 'var(--danger)') +
+      tallyItem('Major', t.major + ' / ' + CFG.majorAccepted, t.major <= CFG.majorAccepted ? 'var(--ok)' : 'var(--danger)') +
+      tallyItem('Verdict', t.verdict, t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)') +
+    '</div>' +
+    '<div class="grow"></div>' +
+    '<div class="col" style="gap:var(--sp-2);align-items:stretch;min-width:260px">' +
+      '<input id="lotRemarks" class="input" type="text" placeholder="Lot-level remarks (optional)">' +
+      '<button id="btnSubmitLot" class="btn btn-lg ' +
+        (allReady ? (t.verdict === 'PASS' ? 'btn-primary' : 'btn-danger') : '') + '"' +
+        (allReady ? '' : ' disabled') + '>' +
+        (allReady ? (t.verdict === 'PASS' ? '✓ Submit lot — PASS' : '⚠ Submit lot — FAIL')
+                  : 'Fill all ' + t.total + ' serials') +
+      '</button>' +
+    '</div>' +
+  '</div>';
+
+  html += '<div class="hint" style="margin-top:var(--sp-3)">' +
+    'Shortcuts: <b>F2</b> or <b>Enter</b> moves to the next serial · <b>Alt+S</b> scan · ' +
+    '<b>Alt+P</b> paste · <b>Ctrl+Enter</b> submit. Drafts save automatically.</div>';
+
+  return html;
+}
+
+function buildSampleRow(s, i){
+  const r = sampleResult(s);
+  const v = VERDICT_MAP[r] || VERDICT_MAP['PENDING'];
+  const bd = evalBD(s);
+  const isFail = r.indexOf('FAIL') === 0;
+  const isDone = r !== 'PENDING';
+  const expanded = S.expanded === i;
+  const bdCls = s.bdNoDot ? '' : (bd.ok ? 'ok' : 'bad');
+  const bdLabel = s.bdNoDot ? 'No BD' : (s.bdVisible ? (bd.ok ? 'BD ✓' : 'BD ✕') : 'BD ?');
+  const ph = (MODEL_CODE[S.activeLot.model] || '????') +
+             (S.activeLot.prodMonthCode || '????') + '0000001';
+
+  let html = '<div class="samp rowz' + (isFail ? ' fail' : (isDone ? ' done' : '')) + '">' +
+    '<div class="samp-num">' + (i + 1) + '</div>' +
+    '<div class="samp-serial">' +
+      '<input class="input mono sSerial' + (s.serialError ? ' err' : '') + '"' +
+        ' data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off"' +
+        ' spellcheck="false" maxlength="15"' +
+        ' value="' + escAttr(s.serial) + '" placeholder="' + escAttr(ph) + '"' +
+        ' aria-label="Serial number for sample ' + (i + 1) + '">' +
+      (s.serialError ? '<div class="err-msg"><span>⚠</span><span>' + esc(s.serialError) + '</span></div>' : '') +
+    '</div>' +
+    '<div class="samp-toggles">' +
+      tgl('Aes',  'aestheticPass', i, s.aestheticPass, 'Aesthetic — minor defect') +
+      tgl('Gen',  'generalPass',   i, s.generalPass,   'General — major defect') +
+      tgl('Func', 'funcPass',      i, s.funcPass,      'Functional — major defect') +
+      tgl('Scr',  'screenPass',    i, s.screenPass,    'Screen — major defect') +
+      '<button class="tgl tgl-bd ' + bdCls + ' bdExpand" data-i="' + i + '"' +
+        ' aria-expanded="' + expanded + '" title="Black dot detail">' + bdLabel + '</button>' +
+    '</div>' +
+    '<div class="grow"></div>' +
+    '<div class="samp-verdict rowz-verdict ' + v[1] + '">' + v[0] + '</div>' +
+  '</div>';
+
+  if(expanded){
+    html += '<div class="samp-expand rowz-expand">' +
+      '<div class="row-wrap" style="margin-bottom:var(--sp-3)">' +
+        '<span class="label" style="margin:0">Black dot detail</span>' +
+        '<label class="chk"><input type="checkbox" class="sBDNoDot" data-i="' + i + '"' +
+          (s.bdNoDot ? ' checked' : '') + '> No black dot</label>' +
+        (!s.bdNoDot ?
+          '<label class="chk"><input type="checkbox" class="sBDVis" data-i="' + i + '"' +
+          (s.bdVisible ? ' checked' : '') + '> Visible at 2 m</label>' : '') +
+      '</div>';
+
+    if(!s.bdNoDot){
+      html += '<div class="bd-grid">' +
+        bdField('D (mm)',    'bdD',  i, s.bdD,  'number', '0.01', 'e.g. 1.2') +
+        bdField('N (spots)', 'bdN',  i, s.bdN,  'number', '1',    'e.g. 2') +
+        bdField('DS (mm)',   'bdDS', i, s.bdDS, 'number', '0.1',  'e.g. 20') +
+        '<div><label class="label" for="bdArea' + i + '">Area</label>' +
+          '<select class="select mono sBDF" id="bdArea' + i + '" data-i="' + i + '" data-f="bdArea">' +
+            '<option value="A"' + (s.bdArea === 'A' ? ' selected' : '') + '>Area A</option>' +
+            '<option value="B"' + (s.bdArea === 'B' ? ' selected' : '') + '>Area B</option>' +
+            '<option value="A+B"' + (s.bdArea === 'A+B' ? ' selected' : '') + '>Area A+B</option>' +
+          '</select></div>' +
+        '<div><div class="bd-verdict ' + (bd.ok ? 'ok' : 'bad') + '">' +
+          (bd.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(bd.reason) + '</div></div>' +
+      '</div>';
+    } else {
+      html += '<div class="bd-verdict ok">✓ No black dot — acceptable</div>';
+    }
+
+    html += '<input class="input sRemark" data-i="' + i + '" type="text" style="margin-top:var(--sp-3)"' +
+      ' value="' + escAttr(s.remark) + '" placeholder="Remark / defect description (optional)">' +
+    '</div>';
+  }
+  return html;
+}
+
+/* ============================================================
+   SMALL HTML BUILDERS
+   ============================================================ */
+function stat(label, val, tone, sub, extra){
+  return '<div class="stat' + (tone ? ' stat-' + tone : '') + '">' +
+    '<div class="stat-label">' + esc(label) + '</div>' +
+    '<div class="stat-val' + (String(val).length > 7 ? ' sm' : '') + '">' + esc(val) + '</div>' +
+    (sub ? '<div class="stat-sub">' + sub + '</div>' : '') +
+    (extra || '') +
+  '</div>';
+}
+function kpi(label, val, color){
+  return '<div class="batch-kpi"><div class="batch-kpi-v"' +
+    (color ? ' style="color:' + color + '"' : '') + '>' + esc(val) + '</div>' +
+    '<div class="batch-kpi-l">' + esc(label) + '</div></div>';
+}
+function tallyItem(label, val, color){
+  return '<div class="tally-item"><div class="tally-l">' + esc(label) + '</div>' +
+    '<div class="tally-v"' + (color ? ' style="color:' + color + '"' : '') + '>' + esc(val) + '</div></div>';
+}
+function field(label, control){
+  return '<div class="field-group"><label class="label">' + label + '</label>' + control + '</div>';
+}
+function banner(kind, title, body){
+  const icon = { info:'ℹ', ok:'✓', warn:'⚠', danger:'⚠' }[kind] || 'ℹ';
+  return '<div class="banner banner-' + kind + '">' +
+    '<span class="banner-icon">' + icon + '</span>' +
+    '<span><b>' + esc(title) + '</b> — ' + body + '</span></div>';
+}
+function modelSelect(id, selected){
+  return '<select id="' + id + '" class="select">' +
+    ALL_MODELS.map(function(m){
+      return '<option value="' + m.key + '"' + (m.key === selected ? ' selected' : '') + '>' +
+        esc(m.label) + '</option>';
+    }).join('') + '</select>';
+}
+function tgl(label, fieldName, i, isPass, title){
+  return '<button class="tgl ' + (isPass ? 'tgl-pass' : 'tgl-fail') + ' sToggle"' +
+    ' data-i="' + i + '" data-f="' + fieldName + '" title="' + escAttr(title) + '"' +
+    ' aria-pressed="' + (!isPass) + '">' + esc(label) + '</button>';
+}
+function bdField(label, f, i, val, type, step, ph){
+  return '<div><label class="label" for="' + f + i + '">' + esc(label) + '</label>' +
+    '<input class="input mono sBDF" id="' + f + i + '" data-i="' + i + '" data-f="' + f + '"' +
+    ' type="' + type + '" step="' + step + '" inputmode="decimal"' +
+    ' value="' + escAttr(val) + '" placeholder="' + escAttr(ph) + '"></div>';
+}
+
+/* ============================================================
+   EVENT WIRING
+   ============================================================ */
+function bindGlobalEvents(){
+  if($('#btnTheme')) $('#btnTheme').onclick = toggleTheme;
+
+  if($('#btnSetup')) $('#btnSetup').onclick = function(){
+    const v = ($('#apiInput').value || '').trim();
+    const err = $('#setupErr');
+    if(!/^https:\/\/.+/i.test(v)){
+      err.hidden = false;
+      $('#setupErrText').textContent = 'Enter a valid https:// Apps Script Web App URL.';
+      return;
+    }
+    if(!/\/exec$/.test(v)){
+      err.hidden = false;
+      $('#setupErrText').textContent =
+        'The URL should end in "/exec". A "/dev" URL only works for the script owner.';
+      return;
+    }
+    err.hidden = true;
+    S.api = v;
+    try{ localStorage.setItem(LS.api, v); }catch(e){}
+    toast('Backend URL saved', 'ok');
+    showScreen('login');
+  };
+
+  if($('#btnSetupDemo')) $('#btnSetupDemo').onclick = function(){
+    S.demo = true; S.api = 'demo';
+    S.user = { username:'demo', name:'Demo Inspector', role:'admin' };
+    S.caps = { validate:true, analytics:true, units:true, photos:false, token:false };
+    saveSession();
+    showScreen('app');
+    loadBatches().then(renderApp);
+    toast('Demo mode — sample data only', 'info');
+  };
+
+  if($('#btnChgUrl')) $('#btnChgUrl').onclick = function(){
+    clearSession();
+    S.user = null; S.token = null; S.api = '';
+    try{ localStorage.removeItem(LS.api); }catch(e){}
+    showScreen('setup');
+  };
+
+  if($('#loginForm')) $('#loginForm').onsubmit = doLogin;
+
+  if($('#btnPwToggle')) $('#btnPwToggle').onclick = function(){
+    const inp = $('#lPass');
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    this.textContent = show ? '🙈' : '👁';
+    this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  };
+
+  if($('#btnLogout')) $('#btnLogout').onclick = async function(){
+    const ok = await confirmDialog({
+      title:'Sign out?', body:'Any unsaved inspection drafts stay on this device.',
+      okText:'Sign out', danger:false
+    });
+    if(!ok) return;
+    saveDraft();
+    clearSession();
+    S.user = null; S.token = null; S.batches = []; S.samples = [];
+    S.activeLot = null; S.view = 'dashboard'; S.demo = false;
+    showScreen('login');
+  };
+
+  if($('#btnHelp')) $('#btnHelp').onclick = showHelp;
+  if($('#btnNavReport')) $('#btnNavReport').onclick = openReport;
+  if($('#btnNavAnalytics')) $('#btnNavAnalytics').onclick = openAnalytics;
+  if($('#btnReportClose')) $('#btnReportClose').onclick = function(){ showScreen('app'); };
+  if($('#btnAnalyticsClose')) $('#btnAnalyticsClose').onclick = function(){ showScreen('app'); };
+  if($('#btnPrint')) $('#btnPrint').onclick = function(){ window.print(); };
+  if($('#btnReportCSV')) $('#btnReportCSV').onclick = downloadCSV;
+  if($('#btnAnalyticsRefresh')) $('#btnAnalyticsRefresh').onclick = async function(){
+    await refreshAll(); renderAnalytics();
+  };
+
+  /* Keep drafts safe on unload / tab hide */
+  window.addEventListener('beforeunload', function(){
+    if(S.activeLot && S.samples.length) saveDraft();
+  });
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden && S.activeLot && S.samples.length) saveDraft();
+  });
+
+  /* Global keyboard shortcuts */
+  document.addEventListener('keydown', function(e){
+    if(e.altKey && !e.ctrlKey && !e.metaKey){
+      const k = e.key.toLowerCase();
+      if(k === 's' && $('#btnScan')){ e.preventDefault(); runScanner(); return; }
+      if(k === 'p' && $('#btnBulk')){ e.preventDefault(); openBulkPaste(); return; }
+    }
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter' && $('#btnSubmitLot') && !$('#btnSubmitLot').disabled){
+      e.preventDefault(); submitLot();
+    }
+  });
+}
+
+/* ---------- Login ---------- */
+async function doLogin(e){
+  if(e) e.preventDefault();
+  const u = ($('#lUser').value || '').trim();
+  const p = ($('#lPass').value || '').trim();
+  const errBox = $('#loginErr');
+  errBox.hidden = true;
+  if(!u || !p){ errBox.hidden = false; $('#loginErrText').textContent = 'Enter both username and password.'; return; }
+
+  const btn = $('#btnLogin');
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  if(S.demo){
+    S.user = { username:u, name:u, role:'admin' };
+    saveSession(); showScreen('app'); renderApp(); refreshAll(); return;
+  }
+
+  const r = await api('login', { username:u, password:p, passwordHash: await sha256(p) });
+
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+
+  if(!r.ok){
+    errBox.hidden = false;
+    let msg = r.error || 'Sign-in failed.';
+    if(r.code === 'HTML_RESPONSE' || /redeploy/i.test(msg)){
+      msg += ' Fix: Apps Script → Deploy → Manage deployments → edit → Version: New version → Deploy.';
+    }
+    $('#loginErrText').textContent = msg;
+    return;
+  }
+
+  S.user = {
+    username: r.username || u,
+    role:     r.role || 'inspector',
+    name:     r.name || u
+  };
+  S.token = r.token || null;
+  saveSession();
+  showScreen('app');
+  renderApp();
+  toast('Welcome, ' + S.user.name, 'ok');
+  detectCapabilities().then(function(){ renderApp(); });
+  refreshAll();
+}
+
+async function sha256(str){
+  if(!(window.crypto && crypto.subtle)) return null;
+  try{
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf))
+      .map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }catch(e){ return null; }
+}
+
+/* ---------- Data refresh (with real loading + error states) ---------- */
+async function refreshAll(opts){
+  opts = opts || {};
+  if(!opts.silent){ S.loading = true; if(S.view === 'dashboard') renderApp(); }
+
+  const r = await loadBatches();
+
+  S.loading = false;
+
+  if(!r.ok){
+    if(S.view === 'dashboard') renderApp();
+    const region = $('#mainRegion');
+    if(region && S.view === 'dashboard'){
+      const box = document.createElement('div');
+      box.className = 'banner banner-danger';
+      box.innerHTML = '<span class="banner-icon">⚠</span><span><b>Could not load data</b> — ' +
+        esc(r.error || 'Unknown error') +
+        ' <button class="btn btn-ghost btn-sm" id="btnRetry" style="margin-left:8px">Retry</button></span>';
+      region.insertBefore(box, region.firstChild);
+      const rb = $('#btnRetry');
+      if(rb) rb.onclick = function(){ refreshAll(); };
+    }
+    if(!opts.silent) toast(r.error || 'Failed to load', 'err');
+    return r;
+  }
+  if(S.view === 'dashboard') renderApp();
+  return r;
+}
+
+/* ============================================================
+   DASHBOARD / INSPECTION EVENT BINDING
+   ============================================================ */
+function bindAppEvents(){
+  const region = $('#mainRegion');
+  if(!region) return;
+
+  /* password reveal toggles inside forms */
+  $$('[data-pwtoggle]', region).forEach(function(b){
+    b.onclick = function(){
+      const inp = document.getElementById(b.getAttribute('data-pwtoggle'));
+      if(!inp) return;
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      b.textContent = show ? '🙈' : '👁';
+    };
+  });
+
+  /* demo exit */
+  const ed = $('#btnExitDemo');
+  if(ed) ed.onclick = function(){
+    S.demo = false; S.api = ''; S.user = null; S.batches = [];
+    try{ localStorage.removeItem(LS.api); }catch(e){}
+    showScreen('setup');
+  };
+
+  /* resume / discard drafts */
+  $$('[data-resume]', region).forEach(function(b){
+    b.onclick = function(){ resumeDraftByKey(b.getAttribute('data-resume')); };
+  });
+  $$('[data-dropdraft]', region).forEach(function(b){
+    b.onclick = async function(){
+      const key = b.getAttribute('data-dropdraft');
+      const ok = await confirmDialog({
+        title:'Discard draft?', body:'The saved progress for this lot will be deleted.',
+        okText:'Discard', danger:true
+      });
+      if(!ok) return;
+      try{ localStorage.removeItem(key); }catch(e){}
+      toast('Draft discarded', 'ok');
+      renderApp();
+    };
+  });
+  const cd = $('#btnClearDrafts');
+  if(cd) cd.onclick = async function(){
+    const ok = await confirmDialog({
+      title:'Discard all drafts?',
+      body:'Every unfinished inspection saved in this browser will be deleted.',
+      okText:'Discard all', danger:true
+    });
+    if(!ok) return;
+    listDrafts().forEach(function(d){ try{ localStorage.removeItem(d.key); }catch(e){} });
+    toast('All drafts discarded', 'ok');
+    renderApp();
+  };
+
+  /* admin: create batch */
+  const cb = $('#btnCreateBatch');
+  if(cb) cb.onclick = createBatch;
+
+  /* admin: add user */
+  const au = $('#btnAddUser');
+  if(au) au.onclick = addUser;
+
+  /* refresh */
+  const rf = $('#btnRefresh');
+  if(rf) rf.onclick = async function(){
+    rf.disabled = true; rf.textContent = '↻ Refreshing…';
+    const r = await refreshAll({ silent:true });
+    rf.disabled = false; rf.textContent = '↻ Refresh data';
+    toast(r.ok ? 'Data refreshed' : (r.error || 'Refresh failed'), r.ok ? 'ok' : 'err');
+  };
+
+  /* report + csv */
+  const sm = $('#btnSummary');
+  if(sm) sm.onclick = openReport;
+  const csv = $('#btnCSV');
+  if(csv) csv.onclick = downloadCSV;
+
+  /* delete batch */
+  $$('[data-delbatch]', region).forEach(function(b){
+    b.onclick = async function(){
+      const name = b.getAttribute('data-delbatch');
+      const ok = await confirmDialog({
+        title:'Delete batch?',
+        body:'Delete <b>' + esc(name) + '</b> and every lot inside it?',
+        detail:'This cannot be undone.',
+        okText:'Delete batch'
+      });
+      if(!ok) return;
+      showLoading('Deleting batch…');
+      const r = await api('deleteBatch', { batchName:name });
+      hideLoading();
+      if(r.ok){ await refreshAll({ silent:true }); toast('Batch deleted', 'ok'); }
+      else toast(r.error || 'Delete failed', 'err');
+    };
+  });
+
+  /* delete lot */
+  $$('[data-dellot]', region).forEach(function(b){
+    b.onclick = async function(){
+      const parts = b.getAttribute('data-dellot').split('||');
+      const ok = await confirmDialog({
+        title:'Delete lot?',
+        body:'Delete lot <b>' + esc(parts[1]) + '</b> from ' + esc(parts[0]) + '?',
+        detail:'This cannot be undone.',
+        okText:'Delete lot'
+      });
+      if(!ok) return;
+      showLoading('Deleting lot…');
+      const r = await api('deleteLot', { batchName:parts[0], lotNumber:parts[1] });
+      hideLoading();
+      if(r.ok){
+        const lot = S.batches.filter(function(l){
+          return l.batchName === parts[0] && l.lotNumber === parts[1];
+        })[0];
+        if(lot) clearDraft(lot);
+        await refreshAll({ silent:true });
+        toast('Lot deleted', 'ok');
+      } else toast(r.error || 'Delete failed', 'err');
+    };
+  });
+
+  /* edit lot */
+  $$('[data-editlot]', region).forEach(function(b){
+    b.onclick = function(){ openEditLot(b.getAttribute('data-editlot')); };
+  });
+
+  /* start / resume inspection */
+  $$('[data-start]', region).forEach(function(b){
+    b.onclick = function(){ startInspection(b.getAttribute('data-start')); };
+  });
+
+  /* ── Inspection screen bindings ── */
+  const back = $('#btnBackInsp');
+  if(back) back.onclick = async function(){
+    saveDraft();
+    S.view = 'dashboard'; S.activeLot = null; S.samples = []; S.expanded = null;
+    await refreshAll({ silent:true });
+    toast('Draft saved — resume any time', 'ok');
+  };
+
+  if($('#btnScan'))      $('#btnScan').onclick = runScanner;
+  if($('#btnBulk'))      $('#btnBulk').onclick = openBulkPaste;
+  if($('#btnAutofill'))  $('#btnAutofill').onclick = autofillSequence;
+  if($('#btnClearSerials')) $('#btnClearSerials').onclick = clearSerials;
+  if($('#btnSubmitLot')) $('#btnSubmitLot').onclick = submitLot;
+
+  /* serial inputs, defect toggles, black-dot fields, remarks and the expand
+     toggle are all row-scoped — one binder serves both the full render and
+     individual row rebuilds. */
+  bindSampleRowEvents(region);
+
+  /* remarks (no re-render, so typing is never interrupted) */
+  $$('.sRemark', region).forEach(function(el){
+    el.onchange = function(){
+      const i = parseInt(el.getAttribute('data-i'), 10);
+      S.samples[i].remark = el.value;
+      saveDraft();
+    };
+  });
+  const lr = $('#lotRemarks');
+  if(lr) lr.onchange = saveDraft;
+}
+
+/* ---------- Per-row + tally refresh (avoids full DOM rebuild) ---------- */
+function refreshSampleRow(i){
+  const list = $('.samp-list');
+  if(!list) return;
+  const row = list.children[i + 1]; /* +1 for .samp-head */
+  if(!row || !row.classList.contains('samp')) return;
+
+  const s = S.samples[i];
+  const r = sampleResult(s);
+  const isFail = r.indexOf('FAIL') === 0;
+  const isDone = r !== 'PENDING';
+
+  row.classList.toggle('fail', isFail);
+  row.classList.toggle('done', isDone && !isFail);
+
+  const v = VERDICT_MAP[r] || VERDICT_MAP['PENDING'];
+  const tag = $('.samp-verdict', row);
+  if(tag){ tag.className = 'samp-verdict rowz-verdict ' + v[1]; tag.textContent = v[0]; }
+
+  refreshBdCell(row, s);
+}
+
+/**
+ * The black-dot detail panel is emitted as a SIBLING of its sample row, not a
+ * descendant (buildSampleRow closes the row before opening the panel). Every
+ * lookup therefore has to consider the row's next sibling too.
+ */
+function bdPanelOf(row){
+  if(!row) return null;
+  const next = row.nextElementSibling;
+  if(next && (next.classList.contains('rowz-expand') || next.classList.contains('samp-expand'))){
+    return next;
+  }
+  return $('.rowz-expand', row) || $('.samp-expand', row);
+}
+
+/**
+ * Update only the black-dot button and (when open) its inline verdict, without
+ * rebuilding the row — rebuilding would drop focus mid-keystroke.
+ */
+function refreshBdCell(row, s){
+  const bd = evalBD(s);
+  const bdBtn = $('.tgl-bd', row);
+  if(bdBtn){
+    bdBtn.className = 'tgl tgl-bd ' + (s.bdNoDot ? '' : (bd.ok ? 'ok' : 'bad')) + ' bdExpand';
+    bdBtn.textContent = s.bdNoDot ? 'No BD' : (s.bdVisible ? (bd.ok ? 'BD ✓' : 'BD ✕') : 'BD ?');
+  }
+  const panel = bdPanelOf(row);
+  if(!panel) return;
+  const verdict = $('.bd-verdict', panel);
+  if(verdict){
+    verdict.className = 'bd-verdict ' + (bd.ok ? 'ok' : 'bad');
+    verdict.innerHTML = (bd.ok ? '✓ OK' : '✕ FAIL') + '<br>' + esc(bd.reason);
+  }
+}
+
+function refreshTally(){
+  const bar = $('.submit-bar');
+  if(!bar) return;
+  const t = tallyLot();
+  const allReady = t.filled === t.total &&
+                   S.samples.every(function(s){ return s.serial && !s.serialError; });
+
+  const vals = $$('.tally-v', bar);
+  if(vals.length >= 4){
+    vals[0].textContent = t.filled + '/' + t.total;
+    vals[0].style.color = t.filled === t.total ? 'var(--ok)' : 'var(--warn)';
+    vals[1].textContent = t.minor + ' / ' + CFG.minorAccepted;
+    vals[1].style.color = t.minor <= CFG.minorAccepted ? 'var(--ok)' : 'var(--danger)';
+    vals[2].textContent = t.major + ' / ' + CFG.majorAccepted;
+    vals[2].style.color = t.major <= CFG.majorAccepted ? 'var(--ok)' : 'var(--danger)';
+    vals[3].textContent = t.verdict;
+    vals[3].style.color = t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)';
+  }
+  const btn = $('#btnSubmitLot');
+  if(btn){
+    btn.disabled = !allReady;
+    btn.className = 'btn btn-lg ' + (allReady ? (t.verdict === 'PASS' ? 'btn-primary' : 'btn-danger') : '');
+    btn.textContent = allReady
+      ? (t.verdict === 'PASS' ? '✓ Submit lot — PASS' : '⚠ Submit lot — FAIL')
+      : 'Fill all ' + t.total + ' serials';
+  }
+}
+
+function focusSerial(i){
+  const el = $('.sSerial[data-i="' + i + '"]');
+  if(el){ el.focus(); el.select(); }
+  else if(i < 0 || i >= S.samples.length){
+    const btn = $('#btnSubmitLot');
+    if(btn && !btn.disabled) btn.focus();
+  }
+}
+
+/* ---------- Row-level (re)binding ----------
+   Binding is scoped to one row so a single row can be rebuilt without
+   touching the rest of the document. */
+function bindSampleRowEvents(row){
+  $$('.sSerial', row).forEach(function(inp){
+    const i = parseInt(inp.getAttribute('data-i'), 10);
+
+    inp.oninput = function(){
+      const clean = inp.value.replace(/\D+/g, '').slice(0, 15);
+      if(clean !== inp.value) inp.value = clean;
+      if(clean.length === 15) commitSerial(i, clean);
+    };
+    inp.onchange = function(){ commitSerial(i, inp.value); };
+    inp.onkeydown = function(e){
+      if(e.key === 'Enter' || e.key === 'F2'){ e.preventDefault(); commitSerial(i, inp.value, true); }
+      if(e.key === 'ArrowDown'){ e.preventDefault(); focusSerial(i + 1); }
+      if(e.key === 'ArrowUp'){ e.preventDefault(); focusSerial(i - 1); }
+      if(e.key === 'Escape'){ inp.blur(); }
+    };
+  });
+
+  $$('.sToggle', row).forEach(function(b){
+    b.onclick = function(){
+      const i = parseInt(b.getAttribute('data-i'), 10);
+      const f = b.getAttribute('data-f');
+      S.samples[i][f] = !S.samples[i][f];
+      if(!S.samples[i][f] && !S.samples[i].inspectedAt) S.samples[i].inspectedAt = nowIso();
+      saveDraft();
+      refreshSampleRow(i);
+      refreshTally();
+    };
+  });
+
+  $$('.sBDNoDot', row).forEach(function(el){
+    el.onchange = function(){
+      const i = parseInt(el.getAttribute('data-i'), 10);
+      S.samples[i].bdNoDot = el.checked;
+      if(el.checked) S.samples[i].bdVisible = false;
+      saveDraft();
+      rerenderSampleRow(i);
+    };
+  });
+
+  $$('.sBDVis', row).forEach(function(el){
+    el.onchange = function(){
+      const i = parseInt(el.getAttribute('data-i'), 10);
+      S.samples[i].bdVisible = el.checked;
+      saveDraft();
+      rerenderSampleRow(i);
+    };
+  });
+
+  $$('.sBDF', row).forEach(function(el){
+    const handler = function(){
+      const i = parseInt(el.getAttribute('data-i'), 10);
+      S.samples[i][el.getAttribute('data-f')] = el.value;
+      saveDraft();
+      refreshSampleRow(i);
+      refreshTally();
+    };
+    el.onchange = handler;
+    el.oninput = debounce(handler, 350);
+  });
+
+  $$('.sRemark', row).forEach(function(el){
+    el.onchange = function(){
+      const i = parseInt(el.getAttribute('data-i'), 10);
+      S.samples[i].remark = el.value;
+      saveDraft();
+    };
+  });
+
+  /* The expand toggle controls which single row shows its panel, so it needs a
+     full re-render. It always lives inside the row itself. */
+  $$('.bdExpand', row).forEach(function(b){
+    b.onclick = function(){
+      const i = parseInt(b.getAttribute('data-i'), 10);
+      S.expanded = (S.expanded === i) ? null : i;
+      renderApp();
+      setTimeout(function(){ focusSerial(i); }, 30);
+    };
+  });
+}
+
+/** Rebuild one sample row (plus its detail panel) in place and rebind it.
+ *  Only this row is touched, so focus elsewhere on the page is preserved. */
+function rerenderSampleRow(i){
+  const list = $('.samp-list');
+  if(!list) return;
+  const row = list.children[i + 1];
+  if(!row || !row.classList.contains('samp')) return;
+
+  const panel = row.nextElementSibling &&
+                (row.nextElementSibling.classList.contains('rowz-expand') ||
+                 row.nextElementSibling.classList.contains('samp-expand'))
+    ? row.nextElementSibling : null;
+
+  const tmp = document.createElement('div');
+  tmp.innerHTML = buildSampleRow(S.samples[i], i);
+  const nodes = Array.prototype.slice.call(tmp.children);
+  if(!nodes.length) return;
+
+  const newRow = nodes.shift();
+  row.replaceWith(newRow);
+
+  /* Remove the old panel, then place the freshly built one after the row. */
+  if(panel) panel.remove();
+  let cursor = newRow;
+  nodes.forEach(function(n){ cursor.after(n); cursor = n; });
+
+  bindSampleRowEvents(newRow);
+  nodes.forEach(bindSampleRowEvents);
+}
+
+/** Validate + store one serial, then advance. */
+async function commitSerial(i, value, advance){
+  const s = S.samples[i];
+  if(!s) return;
+  const v = String(value || '').trim().toUpperCase();
+
+  if(!v){
+    s.serial = ''; s.serialError = ''; s.inspectedAt = '';
+    saveDraft(); refreshSampleRow(i); refreshTally();
+    return;
+  }
+  if(v === s.serial && !s.serialError){ if(advance) focusSerial(i + 1); return; }
+
+  const used = S.samples.filter(function(_, j){ return j !== i && S.samples[j].serial; })
+                        .map(function(x){ return x.serial.toUpperCase(); });
+
+  let err = validateSerial(v, S.activeLot.model, S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
+
+  s.serial = v;
+
+  /* Server-side duplicate check (skipped in demo) */
+  if(!err && !S.demo && S.caps.units !== false){
+    const dup = await api('checkSerial', { serial:v }, { timeout:12000 });
+    if(dup && dup.ok && dup.exists){
+      err = 'Already recorded in master data' +
+            (dup.batch ? ' (' + dup.batch + (dup.lot ? ' ' + dup.lot : '') + ')' : '');
+    }
+  }
+
+  s.serialError = err || '';
+  if(!err) s.inspectedAt = nowIso();
+  saveDraft();
+  refreshSampleRow(i);
+  refreshTally();
+
+  const inp = $('.sSerial[data-i="' + i + '"]');
+  if(inp){
+    inp.classList.toggle('err', !!err);
+    const wrap = inp.parentElement;
+    let msg = $('.err-msg', wrap);
+    if(err){
+      if(!msg){
+        msg = document.createElement('div');
+        msg.className = 'err-msg';
+        msg.innerHTML = '<span>⚠</span><span></span>';
+        wrap.appendChild(msg);
+      }
+      msg.lastElementChild.textContent = err;
+      inp.style.animation = 'none';
+      void inp.offsetWidth;
+      inp.style.animation = 'shake .35s';
+    } else if(msg){ msg.remove(); }
+  }
+
+  if(!err && advance) focusSerial(i + 1);
+}
+
+/* ---------- Bulk paste ---------- */
+async function openBulkPaste(){
+  const text = await openModal({
+    title:'Paste serial numbers',
+    width:560,
+    body:
+      '<p class="muted" style="margin:0 0 var(--sp-4);line-height:1.6">' +
+      'One serial per line (or separated by commas / spaces). They fill the samples in order, ' +
+      'replacing what is there.</p>' +
+      '<textarea id="bulkText" class="textarea mono" style="min-height:180px" ' +
+      'placeholder="121706260000001&#10;121706260000002&#10;121706260000003" ' +
+      'aria-label="Serial numbers"></textarea>',
+    okText:'Import',
+    collect: function(wrap){
+      const el = $('#bulkText', wrap);
+      return el ? el.value : '';
+    }
+  });
+  if(text === null || text === undefined) return;
+
+  const raw = typeof text === 'string' ? text : (($('#bulkText') || {}).value || '');
+  const list = String(raw).split(/[\s,;]+/).map(function(x){ return x.trim(); })
+                          .filter(Boolean);
+
+  if(!list.length){ toast('No serials found in the pasted text', 'warn'); return; }
+  if(list.length > S.samples.length){
+    toast('Only the first ' + S.samples.length + ' serials were used', 'warn');
+  }
+
+  let imported = 0, errors = 0;
+  for(let i = 0; i < Math.min(list.length, S.samples.length); i++){
+    const v = list[i].toUpperCase();
+    const used = S.samples.filter(function(_, j){ return j !== i && S.samples[j].serial; })
+                          .map(function(x){ return x.serial.toUpperCase(); });
+    const err = validateSerial(v, S.activeLot.model, S.activeLot.prodMonthCode, used, S.activeLot.prodMonthCode2);
+    S.samples[i].serial = v;
+    S.samples[i].serialError = err || '';
+    if(err) errors++; else { imported++; S.samples[i].inspectedAt = nowIso(); }
+  }
+  saveDraft();
+  renderApp();
+  toast(imported + ' serial' + (imported === 1 ? '' : 's') + ' imported' +
+        (errors ? ' · ' + errors + ' with errors' : ''), errors ? 'warn' : 'ok');
+}
+
+/* ---------- Autofill ---------- */
+async function autofillSequence(){
+  const prefix = (MODEL_CODE[S.activeLot.model] || '') +
+                 (S.activeLot.prodMonthCode || '');
+  if(prefix.length !== 8){ toast('Lot is missing model or production month', 'err'); return; }
+
+  const last = S.samples.map(function(s){ return s.serial; })
+    .filter(function(v){ return v && /^\d{15}$/.test(v); })
+    .map(function(v){ return parseInt(v.slice(8), 10); })
+    .sort(function(a,b){ return b - a; })[0] || 0;
+
+  const start = await openModal({
+    title:'Autofill sequence',
+    width:460,
+    body:
+      '<p class="muted" style="margin:0 0 var(--sp-4);line-height:1.6">' +
+      'Fills the empty rows with sequential serials using the prefix <b class="mono">' +
+      esc(prefix) + '</b>. Serials already entered are left untouched.</p>' +
+      '<div class="field-group"><label class="label" for="seqStart">Starting sequence (7 digits)</label>' +
+      '<input id="seqStart" class="input mono" inputmode="numeric" maxlength="7" value="' +
+      String(last + 1).padStart(7,'0') + '"></div>',
+    okText:'Autofill',
+    /* Collect explicitly: without this the dialog resolves `true` rather than
+       the typed value, which would silently produce NaN below. */
+    collect: function(wrap){
+      const el = $('#seqStart', wrap);
+      return el ? el.value : '';
+    }
+  });
+  if(start === null || start === undefined) return;
+
+  const raw = typeof start === 'string' ? start : (($('#seqStart') || {}).value || '');
+  let n = parseInt(String(raw).replace(/\D+/g,''), 10);
+  if(!isFinite(n) || n < 1){ toast('Enter a valid starting number', 'err'); return; }
+
+  let filled = 0;
+  for(let i = 0; i < S.samples.length; i++){
+    if(S.samples[i].serial) continue;
+    const serial = prefix + String(n).padStart(7, '0');
+    const used = S.samples.filter(function(_, j){ return j !== i && S.samples[j].serial; })
+                          .map(function(x){ return x.serial.toUpperCase(); });
+    if(used.indexOf(serial) !== -1){ n++; continue; }
+    S.samples[i].serial = serial;
+    S.samples[i].serialError = '';
+    S.samples[i].inspectedAt = nowIso();
+    n++; filled++;
+  }
+  saveDraft();
+  renderApp();
+  toast(filled + ' serial' + (filled === 1 ? '' : 's') + ' autofilled', filled ? 'ok' : 'warn');
+}
+
+async function clearSerials(){
+  const ok = await confirmDialog({
+    title:'Clear all serials?',
+    body:'Every serial in this lot will be emptied. Defect markings are kept.',
+    okText:'Clear serials', danger:true
+  });
+  if(!ok) return;
+  S.samples.forEach(function(s){ s.serial=''; s.serialError=''; s.inspectedAt=''; });
+  saveDraft(); renderApp();
+  toast('Serials cleared', 'ok');
+}
+
+/* ---------- Barcode / QR scanner ---------- */
+async function runScanner(){
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){
+    toast('This device or browser has no camera API. Use “Paste serials” instead.', 'warn');
+    return;
+  }
+
+  let stream = null;
+  let raf = null;
+  let stopped = false;
+
+  const body =
+    '<div class="scan-frame"><video id="scanVideo" playsinline muted></video></div>' +
+    '<div id="scanStatus" class="muted tiny" style="text-align:center;margin-bottom:var(--sp-4)">' +
+      'Point the camera at the barcode…</div>' +
+    '<div class="field-group"><label class="label" for="scanManual">Or type the serial</label>' +
+      '<input id="scanManual" class="input mono" inputmode="numeric" maxlength="15" ' +
+      'placeholder="15 digits"></div>' +
+    '<div class="hint">The scan fills the next empty sample. Keep the barcodes on the unit labels clean.</div>';
+
+  const closer = { stop:null };
+
+  openModal({
+    title:'Scan barcode',
+    width:520,
+    body:body,
+    okText:'Use typed serial',
+    onMount: function(wrap, close){
+      function shutdown(){
+        stopped = true;
+        if(raf) cancelAnimationFrame(raf);
+        if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+      }
+      closer.stop = shutdown;
+
+      const video = $('#scanVideo', wrap);
+      const status = $('#scanStatus', wrap);
+
+      const ok = function(text){
+        shutdown();
+        const i = S.samples.findIndex(function(s){ return !s.serial; });
+        close(null);
+        if(i === -1){ toast('All samples already have serials', 'warn'); return; }
+        commitSerial(i, text, false).then(function(){
+          toast('Scanned ' + text, 'ok');
+          focusSerial(i);
+        });
+      };
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 } }
+      }).then(function(st){
+        stream = st;
+        video.srcObject = st;
+        return video.play();
+      }).then(function(){
+        if('BarcodeDetector' in window){
+          const supported = window.BarcodeDetector.getSupportedFormats
+            ? window.BarcodeDetector.getSupportedFormats() : Promise.resolve([]);
+          Promise.resolve(supported).then(function(formats){
+            const want = ['code_128','code_39','ean_13','ean_8','itf','codabar','qr_code','data_matrix']
+              .filter(function(f){ return !formats.length || formats.indexOf(f) !== -1; });
+            const det = new window.BarcodeDetector(want.length ? { formats:want } : undefined);
+            const tick = function(){
+              if(stopped) return;
+              det.detect(video).then(function(codes){
+                if(codes && codes.length && codes[0].rawValue){
+                  const digits = String(codes[0].rawValue).replace(/\D+/g,'');
+                  if(digits.length >= 15){ ok(digits.slice(0,15)); return; }
+                  if(status) status.textContent = 'Read "' + codes[0].rawValue +
+                    '" — needs 15 digits, keep scanning…';
+                }
+                raf = requestAnimationFrame(tick);
+              }).catch(function(){ raf = requestAnimationFrame(tick); });
+            };
+            tick();
+          });
+        } else {
+          if(status) status.innerHTML =
+            'Live scanning is not supported by this browser. ' +
+            'Type the serial below, or use a Chromium browser on Android.';
+        }
+      }).catch(function(err){
+        if(status) status.textContent =
+          'Camera unavailable (' + (err && err.name ? err.name : 'error') + '). Type the serial below.';
+      });
+
+      wrap.addEventListener('click', function(e){
+        const x = e.target.getAttribute && e.target.getAttribute('data-x');
+        if(x === 'ok'){
+          const man = $('#scanManual', wrap);
+          const v = (man.value || '').replace(/\D+/g,'');
+          if(v.length === 15){ close(null); shutdown(); setTimeout(function(){ ok(v); }, 0); }
+          else if(v.length){ toast('Serial must be 15 digits', 'err'); }
+          return;
+        }
+        if(x === 'close' || x === 'cancel' || e.target === wrap) shutdown();
+      });
+    }
+  }).then(function(){
+    if(closer.stop) closer.stop();
+  });
+}
+
+/* ---------- Lot actions ---------- */
+async function startInspection(key){
+  const parts = key.split('||');
+  const lot = S.batches.filter(function(l){
+    return l.batchName === parts[0] && l.lotNumber === parts[1];
+  })[0];
+  if(!lot) return;
+
+  const draft = loadDraft(lot);
+  if(draft && draft.samples && draft.samples.length){
+    const filled = draft.samples.filter(function(s){ return s.serial; }).length;
+    const resume = await confirmDialog({
+      title:'Resume saved draft?',
+      body:'A draft for <b>' + esc(lot.lotNumber) + '</b> has <b>' + filled + ' of ' +
+           draft.samples.length + '</b> samples filled, saved ' + esc(fmtDateTime(draft.savedAt)) + '.',
+      okText:'Resume draft', danger:false,
+      footer:'<button class="btn btn-ghost" data-x="cancel">Start fresh</button>' +
+             '<button class="btn btn-primary" data-x="ok">Resume draft</button>',
+      enterOk:false
+    });
+    if(resume){
+      S.activeLot = lot;
+      S.samples = draft.samples;
+      S.expanded = null;
+      S.view = 'inspection';
+      renderApp();
+      setTimeout(function(){
+        const r = $('#lotRemarks');
+        if(r) r.value = draft.lotRemarks || '';
+        const first = S.samples.findIndex(function(s){ return !s.serial; });
+        focusSerial(first === -1 ? 0 : first);
+      }, 60);
+      return;
+    }
+    clearDraft(lot);
+  }
+
+  S.activeLot = lot;
+  S.samples = freshSamples(num(lot.sampleSize, CFG.sampleSize));
+  S.expanded = null;
+  S.view = 'inspection';
+  renderApp();
+  setTimeout(function(){ focusSerial(0); }, 60);
+}
+
+function resumeDraftByKey(key){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(key)); }catch(e){}
+  if(!d || !d.lot){ toast('Draft could not be read', 'err'); return; }
+  let lot = S.batches.filter(function(l){
+    return l.batchName === d.lot.batchName && l.lotNumber === d.lot.lotNumber;
+  })[0];
+  if(!lot){ lot = normalizeLot(d.lot); }
+  S.activeLot = lot;
+  S.samples = d.samples;
+  S.expanded = null;
+  S.view = 'inspection';
+  renderApp();
+  setTimeout(function(){
+    const r = $('#lotRemarks');
+    if(r) r.value = d.lotRemarks || '';
+    const first = S.samples.findIndex(function(s){ return !s.serial; });
+    focusSerial(first === -1 ? 0 : first);
+  }, 60);
+}
+
+async function openEditLot(key){
+  const parts = key.split('||');
+  const lot = S.batches.filter(function(l){
+    return l.batchName === parts[0] && l.lotNumber === parts[1];
+  })[0];
+  if(!lot) return;
+
+  const res = await openModal({
+    title:'Edit lot ' + lot.lotNumber,
+    width:560,
+    body:
+      '<div class="field-row">' +
+        field('Status',
+          '<select id="eStatus" class="select">' +
+            '<option value="Open"' + (lot.status === 'Open' ? ' selected' : '') + '>Open</option>' +
+            '<option value="Closed"' + (lot.status === 'Closed' ? ' selected' : '') + '>Closed</option>' +
+          '</select>') +
+        field('BD limit (mm)',
+          '<input id="eBdMax" class="input mono" type="number" step="0.01" value="' + escAttr(lot.bdMax) + '">') +
+      '</div>' +
+      field('Model', modelSelect('eModel', lot.model)) +
+      '<div class="field-row">' +
+        field('Production month 1', '<input id="ePm1" class="input" type="month" value="' + escAttr(inputFromMmyy(lot.prodMonthCode)) + '">') +
+        field('Production month 2 <span class="opt">(optional)</span>', '<input id="ePm2" class="input" type="month" value="' + escAttr(inputFromMmyy(lot.prodMonthCode2)) + '">') +
+      '</div>',
+    okText:'Save changes',
+    collect: function(){
+      return {
+        status:        $('#eStatus').value,
+        bdMax:         parseFloat($('#eBdMax').value) || CFG.bdMaxMm,
+        model:         $('#eModel').value,
+        prodMonthCode: mmyyFromInput($('#ePm1').value) || lot.prodMonthCode,
+        prodMonthCode2: mmyyFromInput($('#ePm2').value)
+      };
+    }
+  });
+  if(!res) return;
+
+  showLoading('Saving lot…');
+  const r = await api('updateLot', Object.assign({
+    batchName: lot.batchName, lotNumber: lot.lotNumber
+  }, res));
+  hideLoading();
+
+  if(r.ok){ await refreshAll({ silent:true }); toast('Lot updated', 'ok'); }
+  else toast(r.error || 'Update failed', 'err');
+}
+
+async function createBatch(){
+  const name  = ($('#bName').value || '').trim();
+  const qty   = parseInt(($('#bQty').value || '').replace(/\D+/g,''), 10) || 0;
+  const model = $('#bModel').value;
+  const pm1   = $('#bMonth').value;
+  const pm2   = $('#bMonth2') ? $('#bMonth2').value : '';
+  const msg   = $('#createMsg');
+
+  if(!name){ toast('Enter a batch name', 'err'); $('#bName').focus(); return; }
+  if(qty < 1){ toast('Enter a quantity greater than 0', 'err'); $('#bQty').focus(); return; }
+  if(!pm1){ toast('Select production month 1', 'err'); $('#bMonth').focus(); return; }
+
+  const prodMonthCode  = mmyyFromInput(pm1);
+  const prodMonthCode2 = pm2 ? mmyyFromInput(pm2) : '';
+
+  msg.innerHTML = '<div class="banner banner-info" style="margin:0">' +
+    '<span class="banner-icon">⏳</span><span>Creating lots…</span></div>';
+
+  let r = await api('createBatch', {
+    batchName:name, batchQty:qty, model:model,
+    prodMonthCode:prodMonthCode, prodMonthCode2:prodMonthCode2,
+    createdBy:S.user.username
+  });
+
+  /* Legacy fallback */
+  if(!r.ok && r.code === 'UNKNOWN_ACTION'){
+    r = await api('createKit', {
+      kitName:name, kitSize:qty, lotSize:CFG.lotSize, sampleSize:CFG.sampleSize,
+      bdMax:CFG.bdMaxMm, model:model, prodMonthCode:prodMonthCode,
+      prodMonthCode2:prodMonthCode2, createdBy:S.user.username
+    });
+    if(r.ok) r.batchQty = qty;
+  }
+
+  if(r.ok){
+    const lots = r.lotsCreated || Math.ceil(qty / CFG.lotSize);
+    const rem = qty % CFG.lotSize;
+    msg.innerHTML = '<div class="banner banner-ok" style="margin:0"><span class="banner-icon">✓</span>' +
+      '<span><b>' + esc(name) + '</b> — ' + lots + ' lots created.<br>' +
+      'Quantity ' + qty + ' · ' + CFG.lotSize + ' units per lot' +
+      (rem > 0 ? '<br>Final lot holds ' + rem + ' units (still ' + CFG.sampleSize + ' samples).' : '') +
+      '</span></div>';
+    $('#bName').value = ''; $('#bQty').value = '';
+    await refreshAll({ silent:true });
+    toast(lots + ' lots created for ' + name, 'ok');
+  } else {
+    msg.innerHTML = '<div class="banner banner-danger" style="margin:0">' +
+      '<span class="banner-icon">⚠</span><span>' + esc(r.error || 'Failed to create batch') + '</span></div>';
+    toast(r.error || 'Create failed', 'err');
+  }
+}
+
+async function addUser(){
+  const username = ($('#uUser').value || '').trim();
+  const password = ($('#uPass').value || '').trim();
+  const name     = ($('#uName').value || '').trim();
+  const role     = $('#uRole').value;
+  const msg      = $('#addUserMsg');
+
+  if(!username || !password || !name){
+    toast('Fill in username, password and full name', 'err'); return;
+  }
+  if(password.length < 6){
+    toast('Use a password of at least 6 characters', 'err'); return;
+  }
+
+  const payload = { username:username, name:name, role:role };
+  if(S.caps.token){
+    const hash = await sha256(password);
+    if(hash){ payload.passwordHash = hash; }
+    else { payload.password = password; }
+  } else {
+    payload.password = password;
+  }
+
+  showLoading('Adding user…');
+  const r = await api('addUser', payload);
+  hideLoading();
+
+  if(r.ok){
+    msg.innerHTML = '<div class="banner banner-ok" style="margin:0"><span class="banner-icon">✓</span>' +
+      '<span>' + esc(username) + ' added as ' + esc(role) + '</span></div>';
+    $('#uUser').value = ''; $('#uPass').value = ''; $('#uName').value = '';
+    toast('User ' + username + ' added', 'ok');
+  } else {
+    msg.innerHTML = '<div class="banner banner-danger" style="margin:0">' +
+      '<span class="banner-icon">⚠</span><span>' + esc(r.error || 'Failed to add user') + '</span></div>';
+    toast(r.error || 'Add user failed', 'err');
+  }
+}
+
+/* ---------- Submit lot ---------- */
+async function submitLot(){
+  const t = tallyLot();
+  const lot = S.activeLot;
+  if(!lot) return;
+
+  const allReady = t.filled === t.total &&
+                   S.samples.every(function(s){ return s.serial && !s.serialError; });
+  if(!allReady){ toast('All ' + t.total + ' serials must be valid before submitting', 'err'); return; }
+
+  const lotRemarks = ($('#lotRemarks') || {}).value || '';
+  const fgPassQty = t.verdict === 'PASS' ? num(lot.lotSize) : 0;
+
+  const confirmOk = await confirmDialog({
+    title:'Submit lot ' + lot.lotNumber + '?',
+    body:'Verdict <b style="color:' + (t.verdict === 'PASS' ? 'var(--ok)' : 'var(--danger)') + '">' +
+         t.verdict + '</b> · Minor ' + t.minor + '/' + CFG.minorAccepted +
+         ' · Major ' + t.major + '/' + CFG.majorAccepted + '.<br><br>' +
+         'FG released: <b>' + fgPassQty + '</b> of ' + lot.lotSize + ' units.',
+    detail:'Once submitted the lot closes and cannot be edited from this screen.',
+    okText:'Submit ' + t.verdict, danger:false
+  });
+  if(!confirmOk) return;
+
+  const units = S.samples.map(function(s){
+    const bd = evalBD(s);
+    const r = sampleResult(s);
+    const fails = [];
+    if(!s.aestheticPass) fails.push('Aesthetic fail (minor)');
+    if(!s.generalPass)   fails.push('General fail (major)');
+    if(!s.funcPass)      fails.push('Functional fail (major)');
+    if(!s.screenPass)    fails.push('Screen fail (major)');
+    if(!bd.ok)           fails.push('Black dot fail (major): ' + bd.reason);
+    return {
+      serial:  s.serial,
+      aes:     s.aestheticPass ? 'Pass' : 'Fail',
+      general: s.generalPass ? 'Pass' : 'Fail',
+      func:    s.funcPass ? 'Pass' : 'Fail',
+      screen:  s.screenPass ? 'Pass' : 'Fail',
+      bd:      s.bdNoDot ? 'No BD' : (s.bdVisible ? bd.reason : 'Not visible @2m'),
+      bdRaw:   { noDot:s.bdNoDot, visible:s.bdVisible, D:s.bdD, N:s.bdN, DS:s.bdDS, area:s.bdArea },
+      remark:  fails.length ? fails.join(' | ') : (s.remark || lotRemarks || 'OK'),
+      sampleResult: r === 'PASS' ? 'Pass' : 'Fail',
+      defectMajor: !s.generalPass || !s.funcPass || !s.screenPass || !bd.ok,
+      defectMinor: !s.aestheticPass,
+      inspectedAt: s.inspectedAt || nowIso()
+    };
+  });
+
+  const payload = {
+    inspector:     S.user.name,
+    inspectorUser: S.user.username,
+    batchName:     lot.batchName,
+    lotNumber:     lot.lotNumber,
+    lotResult:     t.verdict,
+    fgPassQty:     fgPassQty,
+    batchQty:      lot.batchQty,
+    totalLots:     lot.totalLots,
+    model:         lot.model,
+    prodMonthCode: lot.prodMonthCode,
+    lotRemarks:    lotRemarks,
+    minorCount:    t.minor,
+    majorCount:    t.major,
+    sampleSize:    t.total,
+    /* Server-side revalidation payload for the hardened backend */
+    units:         units,
+    clientVerdict: t.verdict,
+    submittedAt:   nowIso()
+  };
+
+  showLoading('Submitting lot…');
+  const r = await api('submitLot', payload, { timeout:45000 });
+  hideLoading();
+
+  if(!r.ok){
+    saveDraft();
+    toast(r.error || 'Submit failed — draft kept locally', 'err');
+    return;
+  }
+
+  /* Hardened backends may override the verdict — surface that honestly. */
+  if(r.verdict && r.verdict !== t.verdict){
+    toast('Server verdict: ' + r.verdict + ' (client said ' + t.verdict + ')', 'warn');
+  }
+
+  clearDraft(lot);
+  toast(lot.lotNumber + ': ' + (r.verdict || t.verdict) + ' · FG ' + fgPassQty, 'ok');
+
+  S.activeLot = null; S.samples = []; S.expanded = null; S.view = 'dashboard';
+  await refreshAll({ silent:true });
+}
+
+/* ============================================================
+   ANALYTICS  — defect Pareto, batch yield comparison
+   ============================================================ */
+const DEFECT_CATS = ['Aesthetic','General','Functional','Screen','Black Dot'];
+const DEFECT_SEV  = {
+  'Aesthetic':'minor', 'General':'major', 'Functional':'major',
+  'Screen':'major', 'Black Dot':'major'
+};
+
+/**
+ * Collect defect data from whatever the backend exposes.
+ * Sources, in order of value:
+ *   1. lot.units[]              — per-unit detail from a hardened backend
+ *   2. minorCount / majorCount  — per-lot headcounts
+ *   3. local drafts             — work in progress not yet submitted
+ * Returns null when nothing usable exists, so the view can explain why.
+ */
+function collectDefects(){
+  let hasUnitDetail = false, hasCounts = false;
+  const minor = {}, major = {}, lots = {};
+  DEFECT_CATS.forEach(function(c){ minor[c] = 0; major[c] = 0; lots[c] = 0; });
+
+  S.batches.forEach(function(lot){
+    const units = lot.units || lot.samples || lot.unitData;
+    if(Array.isArray(units) && units.length){
+      hasUnitDetail = true;
+      units.forEach(function(u){
+        if(isFailVal(u.aes)){ minor['Aesthetic']++; lots['Aesthetic']++; }
+        if(isFailVal(u.general)){ major['General']++; lots['General']++; }
+        if(isFailVal(u.func)){ major['Functional']++; lots['Functional']++; }
+        if(isFailVal(u.screen)){ major['Screen']++; lots['Screen']++; }
+        const bdTxt = String(u.bd || '');
+        if(/FAIL/i.test(bdTxt)){ major['Black Dot']++; lots['Black Dot']++; }
+      });
+    } else if(num(lot.minorCount) > 0 || num(lot.majorCount) > 0){
+      hasCounts = true;
+      const mc = num(lot.minorCount), jc = num(lot.majorCount);
+      minor['Aesthetic'] += mc;
+      if(mc > 0) lots['Aesthetic']++;
+      major['General'] += jc;
+      if(jc > 0) lots['General']++;
+    }
+  });
+
+  /* Work in progress from local drafts */
+  const drafts = listDrafts();
+  drafts.forEach(function(d){
+    (d.samples || []).forEach(function(s){
+      defectList(s).forEach(function(x){
+        if(x.sev === 'major'){ major[x.cat]++; lots[x.cat]++; }
+        else { minor[x.cat]++; lots[x.cat]++; }
+      });
+    });
+  });
+
+  if(!hasUnitDetail && !hasCounts && !drafts.length) return null;
+  return { minor:minor, major:major, lots:lots, hasUnitDetail:hasUnitDetail, hasCounts:hasCounts };
+}
+
+function isFailVal(v){
+  return v === 'Fail' || v === false || v === 'fail' || v === 'FAIL';
+}
+
+function openAnalytics(){
+  showScreen('analytics');
+  renderAnalytics();
+}
+
+function renderAnalytics(){
+  const region = $('#analyticsRegion');
+  if(!region) return;
+
+  const t = globalTotals();
+  const groups = groupBatches();
+  const d = collectDefects();
+
+  let html = '';
+
+  /* Headline KPIs */
+  html += '<div class="grid-kpi" style="margin-bottom:var(--sp-4)">' +
+    stat('Batches', t.batches) +
+    stat('Lots', t.totalLots) +
+    stat('Completed', t.done, 'info') +
+    stat('Passed', t.pass, 'ok') +
+    stat('Failed', t.fail, t.fail ? 'danger' : null) +
+    stat('Yield', (t.done ? t.yieldPct.toFixed(1) : '0.0') + '%', 'info') +
+    stat('FG released', t.fg, 'ok') +
+    stat('Open lots', t.open, t.open ? 'warn' : null) +
+  '</div>';
+
+  if(!d){
+    html += '<div class="empty"><div class="empty-icon">📈</div>' +
+      '<div class="empty-title">No defect detail available yet</div>' +
+      '<div style="max-width:540px;margin:0 auto;line-height:1.6">' +
+        'Defect analytics need per-unit results. Deploy the hardened Apps Script backend ' +
+        '(see <b>README-apps-script.md</b>) so every submitted unit is stored with its defect ' +
+        'flags — or start an inspection and local draft data will appear here too.' +
+      '</div></div>';
+    region.innerHTML = html;
+    injectLogo(region);
+    return;
+  }
+
+  /* Pareto */
+  const rows = DEFECT_CATS.map(function(c){
+    return {
+      cat:c, sev:DEFECT_SEV[c],
+      count:d.major[c] + d.minor[c],
+      major:d.major[c], minor:d.minor[c], lots:d.lots[c]
+    };
+  }).sort(function(a,b){ return b.count - a.count; });
+
+  const totalDefects = rows.reduce(function(s,r){ return s + r.count; }, 0);
+  const maxCount = rows.length ? rows[0].count : 0;
+
+  if(totalDefects > 0){
+    html += '<div class="card"><div class="card-head">' +
+      '<div class="card-title">Defect Pareto — most frequent first</div>' +
+      '<span class="pill pill-neutral">' + totalDefects + ' defect' +
+        (totalDefects === 1 ? '' : 's') + '</span></div>' +
+      '<div class="card-body">' + paretoSvg(rows, totalDefects, maxCount) +
+      '<div class="chart-legend">' +
+        '<span class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span>Major defect</span>' +
+        '<span class="legend-item"><span class="legend-dot" style="background:var(--warn)"></span>Minor defect</span>' +
+        '<span class="legend-item"><span class="legend-dot" style="background:var(--info)"></span>Cumulative %</span>' +
+      '</div></div></div>';
+
+    /* Detail table */
+    html += '<div class="card"><div class="card-head"><div class="card-title">Defect breakdown</div></div>' +
+      '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+        '<th>Defect category</th><th>Severity</th><th class="num">Major</th>' +
+        '<th class="num">Minor</th><th class="num">Total</th><th class="num">Share</th>' +
+        '<th class="num">Cumulative</th></tr></thead><tbody>';
+    let cum = 0;
+    rows.forEach(function(r){
+      cum += r.count;
+      html += '<tr><td><b style="color:var(--text)">' + esc(r.cat) + '</b></td>' +
+        '<td><span class="pill ' + (r.sev === 'major' ? 'pill-fail' : 'pill-minor') + '">' +
+          esc(r.sev) + '</span></td>' +
+        '<td class="num">' + r.major + '</td>' +
+        '<td class="num">' + r.minor + '</td>' +
+        '<td class="num"><b>' + r.count + '</b></td>' +
+        '<td class="num">' + (totalDefects ? (r.count / totalDefects * 100).toFixed(1) : '0.0') + '%</td>' +
+        '<td class="num">' + (totalDefects ? (cum / totalDefects * 100).toFixed(1) : '0.0') + '%</td></tr>';
+    });
+    html += '</tbody><tfoot><tr><td colspan="4">Total</td>' +
+      '<td class="num">' + totalDefects + '</td><td class="num">100%</td><td></td></tr></tfoot>' +
+      '</table></div></div>';
+  } else {
+    html += banner('ok', 'No defects recorded',
+      'Every inspected unit in the current data set passed all checks — nothing to Pareto yet.');
+  }
+
+  /* Batch yield comparison */
+  if(groups.length){
+    html += '<div class="card"><div class="card-head"><div class="card-title">Batch yield comparison</div></div>' +
+      '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+        '<th>Batch</th><th class="num">Completed</th><th class="num">Pass</th>' +
+        '<th class="num">Fail</th><th class="num">Yield</th><th style="width:180px">Yield bar</th>' +
+        '<th class="num">FG released</th></tr></thead><tbody>';
+    groups.forEach(function(g){
+      const y = g.completed ? (g.passLots / g.completed * 100) : 0;
+      const tone = y >= 98 ? '' : (y >= 90 ? 'warn' : 'danger');
+      html += '<tr><td><b class="mono" style="color:var(--text)">' + esc(g.name) + '</b></td>' +
+        '<td class="num">' + g.completed + '/' + g.totalLots + '</td>' +
+        '<td class="num" style="color:var(--ok)">' + g.passLots + '</td>' +
+        '<td class="num"' + (g.failLots ? ' style="color:var(--danger)"' : '') + '>' + g.failLots + '</td>' +
+        '<td class="num"><b>' + (g.completed ? y.toFixed(1) + '%' : '—') + '</b></td>' +
+        '<td><div class="progress"><div class="progress-fill ' + tone + '" style="width:' +
+          Math.min(100, y).toFixed(1) + '%"></div></div></td>' +
+        '<td class="num">' + g.fgTotal + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  if(!d.hasUnitDetail){
+    html += banner('info', 'Partial data',
+      'Per-unit defect categories are not exposed by this backend, so the Pareto reflects ' +
+      'lot-level minor/major counts and local drafts. Deploy the hardened backend for a full ' +
+      'category-level Pareto.');
+  }
+
+  region.innerHTML = html;
+  injectLogo(region);
+}
+
+/** Hand-rolled Pareto chart: stacked cause bars + cumulative percentage line. */
+function paretoSvg(rows, total, maxCount){
+  const W = 720, H = 320;
+  const padL = 46, padR = 46, padT = 18, padB = 62;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const n = rows.length || 1;
+  const slot = plotW / n;
+  const barW = Math.min(72, slot * 0.58);
+
+  let bars = '', ticks = '', labels = '', cum = 0;
+  let prevX = padL, prevY = padT + plotH, started = false;
+
+  rows.forEach(function(r, i){
+    const totalH = maxCount ? (r.count / maxCount) * plotH : 0;
+    const majorH = maxCount ? (r.major / maxCount) * plotH : 0;
+    const minorH = Math.max(0, totalH - majorH);
+    const x = padL + slot * i + (slot - barW) / 2;
+    const cx = padL + slot * i + slot / 2;
+    const y = padT + plotH - totalH;
+
+    cum += r.count;
+    const cy = padT + plotH - (total ? (cum / total) : 0) * plotH;
+
+    if(r.major > 0){
+      bars += '<rect x="' + x.toFixed(1) + '" y="' + (padT + plotH - majorH).toFixed(1) +
+        '" width="' + barW.toFixed(1) + '" height="' + majorH.toFixed(1) +
+        '" fill="var(--danger)" rx="3"></rect>';
+    }
+    if(r.minor > 0){
+      bars += '<rect x="' + x.toFixed(1) + '" y="' + (padT + plotH - majorH - minorH).toFixed(1) +
+        '" width="' + barW.toFixed(1) + '" height="' + minorH.toFixed(1) +
+        '" fill="var(--warn)" rx="3"></rect>';
+    }
+    if(r.count > 0){
+      bars += '<text x="' + (x + barW / 2).toFixed(1) + '" y="' + Math.max(12, y - 6).toFixed(1) +
+        '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">' + r.count + '</text>';
+    }
+
+    labels += '<text x="' + cx.toFixed(1) + '" y="' + (padT + plotH + 20) +
+      '" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-2)">' +
+      esc(r.cat) + '</text>';
+    labels += '<text x="' + cx.toFixed(1) + '" y="' + (padT + plotH + 35) +
+      '" text-anchor="middle" font-size="10" fill="var(--text-4)">' +
+      (total ? (r.count / total * 100).toFixed(0) : '0') + '%</text>';
+
+    bars += '<path d="' + (started ? 'L' : 'M') + prevX.toFixed(1) + ' ' + prevY.toFixed(1) +
+      ' L' + cx.toFixed(1) + ' ' + cy.toFixed(1) + '" fill="none" stroke="var(--info)" ' +
+      'stroke-width="2" stroke-linejoin="round"></path>';
+    bars += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="3.5" ' +
+      'fill="var(--surface)" stroke="var(--info)" stroke-width="2"></circle>';
+    prevX = cx; prevY = cy; started = true;
+  });
+
+  /* Grid + left count scale + right percentage scale */
+  for(let p = 0; p <= 100; p += 25){
+    const y = padT + plotH - (p / 100) * plotH;
+    ticks += '<line x1="' + padL + '" y1="' + y.toFixed(1) + '" x2="' + (W - padR) +
+      '" y2="' + y.toFixed(1) + '" stroke="var(--border)" stroke-width="1"></line>';
+    ticks += '<text x="' + (padL - 8) + '" y="' + (y + 4).toFixed(1) +
+      '" text-anchor="end" font-size="10" fill="var(--text-4)">' +
+      Math.round(maxCount * p / 100) + '</text>';
+    ticks += '<text x="' + (W - padR + 8) + '" y="' + (y + 4).toFixed(1) +
+      '" font-size="10" fill="var(--info)">' + p + '%</text>';
+  }
+
+  return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" ' +
+    'aria-label="Defect Pareto chart — defect categories by frequency with cumulative percentage">' +
+    ticks +
+    '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (W - padR) + '" y2="' +
+      (padT + plotH) + '" stroke="var(--border-strong)" stroke-width="1.5"></line>' +
+    bars + labels +
+    '<text x="' + padL + '" y="12" font-size="10" fill="var(--text-4)">defects</text>' +
+  '</svg>';
+}
+
+/* ============================================================
+   REPORT  — one print/PDF-ready sheet
+   ============================================================ */
+function openReport(){
+  showScreen('report');
+  document.body.setAttribute('data-print-view', 'report');
+  renderReport();
+}
+
+function renderReport(){
+  const region = $('#reportRegion');
+  if(!region) return;
+
+  const groups = groupBatches();
+  const t = globalTotals();
+  const d = collectDefects();
+
+  const dates = S.batches.map(function(b){ return b.createdAt; })
+    .filter(Boolean).map(function(x){ return new Date(x); })
+    .filter(function(x){ return !isNaN(x); })
+    .sort(function(a,b){ return a - b; });
+  const range = dates.length
+    ? fmtDate(dates[0]) + ' – ' + fmtDate(dates[dates.length - 1])
+    : '—';
+
+  let html = '<div class="report">' +
+
+    /* Header */
+    '<div class="report-head">' +
+      '<div>' +
+        '<div class="report-title">OBA Inspection Report</div>' +
+        '<div class="report-sub">IS 2500 · Level G2 · Lot size ' + CFG.lotSize +
+          ' · Sample ' + CFG.sampleSize + ' · Minor Ac ≤ ' + CFG.minorAccepted +
+          ' · Major Ac = ' + CFG.majorAccepted + '</div>' +
+      '</div>' +
+      '<div style="text-align:right">' +
+        '<div class="tiny muted">Generated</div>' +
+        '<div class="mono" style="font-weight:700">' + esc(fmtDateTime(new Date())) + '</div>' +
+        '<div class="tiny muted" style="margin-top:4px">By</div>' +
+        '<div class="mono" style="font-weight:700">' + esc(S.user ? S.user.name : '—') +
+          ' (' + esc(S.user ? S.user.role : '—') + ')</div>' +
+      '</div>' +
+    '</div>' +
+
+    /* 1 — Summary */
+    '<div class="report-sec-title">1 · Executive summary</div>' +
+    '<div class="grid-kpi">' +
+      stat('Batches', t.batches) +
+      stat('Total lots', t.totalLots) +
+      stat('Lots completed', t.done) +
+      stat('Lots passed', t.pass, 'ok') +
+      stat('Lots failed', t.fail, t.fail ? 'danger' : null) +
+      stat('Lots pending', t.open, t.open ? 'warn' : null) +
+      stat('Yield', (t.done ? t.yieldPct.toFixed(1) : '0.0') + '%', 'info') +
+      stat('FG released', t.fg, 'ok', 'of ' + t.batchQty + ' units') +
+    '</div>' +
+    '<div class="row-wrap" style="margin-top:var(--sp-4)">' +
+      '<span class="tiny muted">Production date range: <b class="mono">' + esc(range) + '</b></span>' +
+      '<span class="tiny muted">Inspection completion: <b class="mono">' + t.progressPct + '%</b></span>' +
+    '</div>';
+
+  /* 2 — Batch detail */
+  html += '<div class="report-sec-title">2 · Batch and lot detail</div>';
+  if(!groups.length){
+    html += '<p class="muted">No batch data available.</p>';
+  } else {
+    groups.forEach(function(g){
+      html += '<div style="margin-bottom:var(--sp-6)">' +
+        '<div class="between" style="margin-bottom:var(--sp-2);align-items:flex-start">' +
+          '<div><b class="mono" style="font-size:var(--fs-lg)">' + esc(g.name) + '</b>' +
+            '<div class="tiny muted">Model ' + esc(g.model || '—') +
+              ' · Prod month ' + mmyyDisp(g.prodMonthCode) +
+              (g.prodMonthCode2 ? ' / ' + mmyyDisp(g.prodMonthCode2) : '') +
+              ' · Batch qty ' + g.batchQty + ' · Lots ' + g.totalLots + '</div>' +
+          '</div>' +
+          '<div class="tiny mono">Pass ' + g.passLots + ' · Fail ' + g.failLots +
+            ' · Pending ' + g.pending + '</div>' +
+        '</div>' +
+        '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+          '<th>#</th><th>Lot number</th><th class="num">Lot size</th>' +
+          '<th class="num">Sample</th><th class="ctr">Status</th><th class="ctr">Result</th>' +
+          '<th class="num">FG released</th><th>Created by</th></tr></thead><tbody>';
+
+      g.lots.forEach(function(lot, i){
+        html += '<tr>' +
+          '<td class="num">' + (i + 1) + '</td>' +
+          '<td class="mono"><b style="color:var(--text)">' + esc(lot.lotNumber) + '</b></td>' +
+          '<td class="num">' + lot.lotSize + '</td>' +
+          '<td class="num">' + lot.sampleSize + '</td>' +
+          '<td class="ctr"><span class="pill ' + (lot.status === 'Open' ? 'pill-open' : 'pill-closed') +
+            '">' + esc(lot.status) + '</span></td>' +
+          '<td class="ctr">' + (lot.result
+            ? '<span class="pill ' + (lot.result === 'PASS' ? 'pill-pass' : 'pill-fail') + '">' +
+              esc(lot.result) + '</span>'
+            : '<span class="muted">—</span>') + '</td>' +
+          '<td class="num">' + (num(lot.fgPassQty) > 0 ? num(lot.fgPassQty) : '—') + '</td>' +
+          '<td class="tiny">' + esc(lot.createdBy || '—') + '</td>' +
+        '</tr>';
+      });
+
+      html += '</tbody><tfoot><tr>' +
+        '<td colspan="6">Batch total — FG released</td>' +
+        '<td class="num">' + g.fgTotal + '</td><td></td>' +
+      '</tr></tfoot></table></div></div>';
+    });
+  }
+
+  /* 3 — Defects */
+  html += '<div class="report-sec-title">3 · Defect analysis</div>';
+  if(d){
+    const rows = DEFECT_CATS.map(function(c){
+      return { cat:c, sev:DEFECT_SEV[c], count:d.major[c] + d.minor[c],
+               major:d.major[c], minor:d.minor[c] };
+    }).filter(function(r){ return r.count > 0; })
+      .sort(function(a,b){ return b.count - a.count; });
+    const totalDefects = rows.reduce(function(s,r){ return s + r.count; }, 0);
+
+    if(totalDefects){
+      html += '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+        '<th>Defect category</th><th>Severity</th><th class="num">Major</th>' +
+        '<th class="num">Minor</th><th class="num">Total</th><th class="num">Share</th>' +
+        '</tr></thead><tbody>';
+      rows.forEach(function(r){
+        html += '<tr><td><b style="color:var(--text)">' + esc(r.cat) + '</b></td>' +
+          '<td>' + esc(r.sev) + '</td>' +
+          '<td class="num">' + r.major + '</td><td class="num">' + r.minor + '</td>' +
+          '<td class="num"><b>' + r.count + '</b></td>' +
+          '<td class="num">' + (r.count / totalDefects * 100).toFixed(1) + '%</td></tr>';
+      });
+      html += '</tbody><tfoot><tr><td colspan="4">Total defects</td>' +
+        '<td class="num">' + totalDefects + '</td><td class="num">100%</td></tr></tfoot></table></div>';
+    } else {
+      html += '<p class="muted">No defects recorded in the current data set.</p>';
+    }
+  } else {
+    html += '<p class="muted">Per-unit defect detail is not available from the connected backend. ' +
+      'Deploy the hardened Apps Script backend to populate this section.</p>';
+  }
+
+  /* 4 — Approval */
+  html += '<div class="report-sec-title">4 · Approval</div>' +
+    '<div class="sign-grid">' +
+      '<div class="sign-box">Inspected by<div class="mono" style="color:var(--text);font-weight:700;margin-top:4px">' +
+        esc(S.user ? S.user.name : '') + '</div></div>' +
+      '<div class="sign-box">QA / QC verified by</div>' +
+      '<div class="sign-box">Date</div>' +
+    '</div>';
+
+  html += '<p class="tiny muted" style="margin-top:var(--sp-8);text-align:center">' +
+    'Lumio OBA Inspection · rendered from the connected backend.</p>';
+
+  html += '</div>';
+
+  region.innerHTML = html;
+  if($('#reportHdrSub')){
+    $('#reportHdrSub').textContent = t.totalLots + ' lots · ' + t.batches + ' batches · ' +
+      (t.done ? t.yieldPct.toFixed(1) : '0.0') + '% yield';
+  }
+  injectLogo(region);
+}
+
+/* ---------- CSV ---------- */
+function downloadCSV(){
+  const groups = groupBatches();
+  const t = globalTotals();
+  const BOM = '\uFEFF';   /* makes Excel read the file as UTF-8 */
+  const q = function(v){
+    const s = v === null || v === undefined ? '' : String(v);
+    return '"' + s.replace(/"/g, '""') + '"';
+  };
+
+  const lines = [];
+  lines.push(q('Lumio OBA Inspection Report'));
+  lines.push(q('Generated') + ',' + q(new Date().toLocaleString()));
+  lines.push(q('Standard') + ',' + q('IS 2500 Level G2 — Lot ' + CFG.lotSize +
+    ' / Sample ' + CFG.sampleSize + ' / Minor Ac<=' + CFG.minorAccepted +
+    ' / Major Ac=' + CFG.majorAccepted));
+  lines.push('');
+  lines.push(['BatchName','LotNumber','Model','ProdMonth1','ProdMonth2','BatchQty','LotSize',
+              'SampleSize','Status','Result','FGPassQty','MinorCount','MajorCount',
+              'CreatedBy','CreatedAt'].map(q).join(','));
+  groups.forEach(function(g){
+    g.lots.forEach(function(l){
+      lines.push([
+        l.batchName, l.lotNumber, l.model || '', mmyyDisp(l.prodMonthCode),
+        l.prodMonthCode2 ? mmyyDisp(l.prodMonthCode2) : '',
+        l.batchQty, l.lotSize, l.sampleSize, l.status, l.result || 'Pending',
+        num(l.fgPassQty), num(l.minorCount), num(l.majorCount),
+        l.createdBy || '', l.createdAt || ''
+      ].map(q).join(','));
+    });
+  });
+  lines.push('');
+  lines.push([q('TOTALS'), q('Batches=' + t.batches), q('Lots=' + t.totalLots),
+              q('Completed=' + t.done), q('Passed=' + t.pass), q('Failed=' + t.fail),
+              q('FGReleased=' + t.fg),
+              q('Yield=' + (t.done ? t.yieldPct.toFixed(1) : '0.0') + '%')].join(','));
+
+  const blob = new Blob([BOM + lines.join('\r\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'OBA_Report_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast('CSV downloaded', 'ok');
+}
+
+/* ============================================================
+   HELP  — standard reference
+   ============================================================ */
+function showHelp(){
+  openModal({
+    title:'IS 2500 reference & shortcuts',
+    width:660,
+    footer:'<button class="btn btn-primary" data-x="ok">Close</button>',
+    body:
+      '<div class="report-sec-title" style="margin-top:0">Acceptance criteria</div>' +
+      '<table class="tbl"><tbody>' +
+        '<tr><td>Lot size / sample</td><td><b>' + CFG.lotSize + ' units / ' +
+          CFG.sampleSize + ' units</b></td></tr>' +
+        '<tr><td>Minor (aesthetic) Ac</td><td><b>≤ ' + CFG.minorAccepted +
+          ' allowed</b></td></tr>' +
+        '<tr><td>Major (general, functional, screen, black dot) Ac</td><td><b>' +
+          CFG.majorAccepted + ' allowed</b></td></tr>' +
+        '<tr><td>Black dot — not visible at 2 m</td><td>Acceptable, any quantity</td></tr>' +
+        '<tr><td>Black dot — D ≤ 1.28 mm</td><td>Acceptable with N ≤ 3, DS ≥ 15 mm</td></tr>' +
+        '<tr><td>Black dot — 1.28 &lt; D ≤ 2.4 mm</td>' +
+          '<td>Area A: N ≤ 1 · Area B: N ≤ 3 · A+B: N ≤ 3</td></tr>' +
+        '<tr><td>Black dot — D &gt; 2.4 mm</td><td>Fail (major)</td></tr>' +
+      '</tbody></table>' +
+
+      '<div class="report-sec-title">Black-dot fields</div>' +
+      '<table class="tbl"><tbody>' +
+        '<tr><td><b>D</b></td><td>Dot diameter, in mm</td></tr>' +
+        '<tr><td><b>N</b></td><td>Number of dots</td></tr>' +
+        '<tr><td><b>DS</b></td><td>Dot separation, in mm</td></tr>' +
+        '<tr><td><b>Area A / B</b></td><td>Display region where the dot occurs</td></tr>' +
+      '</tbody></table>' +
+
+      '<div class="report-sec-title">Serial number format</div>' +
+      '<p class="muted tiny" style="line-height:1.7">15 digits: <b class="mono">' +
+      'MMMM YYMM NNNNNNN</b> — 4-digit model code, 4-digit production month (MMYY), then a ' +
+      '7-digit sequence. Model codes: ' +
+      ALL_MODELS.map(function(m){ return '<b class="mono">' + m.code + '</b> = ' + esc(m.label); })
+        .join(' · ') + '.</p>' +
+
+      '<div class="report-sec-title">Keyboard shortcuts</div>' +
+      '<table class="tbl"><tbody>' +
+        '<tr><td><b>Enter</b> / <b>F2</b></td><td>Validate the serial and move to the next sample</td></tr>' +
+        '<tr><td><b>↑</b> / <b>↓</b></td><td>Move between serial fields</td></tr>' +
+        '<tr><td><b>Alt + S</b></td><td>Open the barcode scanner</td></tr>' +
+        '<tr><td><b>Alt + P</b></td><td>Paste a list of serials</td></tr>' +
+        '<tr><td><b>Ctrl + Enter</b></td><td>Submit the lot</td></tr>' +
+      '</tbody></table>' +
+
+      '<div class="report-sec-title">Data safety</div>' +
+      '<p class="muted tiny" style="line-height:1.7">' +
+      'Inspection drafts save automatically to this browser after every change, so a refresh, an ' +
+      'accidental back navigation or a dropped connection never loses work. Unfinished drafts are ' +
+      'listed at the top of the dashboard. Submitting a lot clears its draft once the backend ' +
+      'confirms the write, and a failed submit keeps the draft and tells you why.</p>'
+  });
+}
+
+/* ============================================================
+   DEMO BACKEND  — explore the UI with no server
+   ============================================================ */
+function demoBatches(){
+  const out = [];
+  const models = [
+    { model:'LH1G',     pmc:'0526' },
+    { model:'LH3G',     pmc:'0626' },
+    { model:'LH3G_NEW', pmc:'0626' }
+  ];
+  const qtys = [2000, 1350, 900, 450];
+  for(let b = 0; b < 4; b++){
+    const m = models[b % models.length];
+    const name = 'DEMO-' + m.model + '-' + m.pmc;
+    const qty = qtys[b];
+    const lots = Math.ceil(qty / CFG.lotSize);
+    for(let i = 1; i <= lots; i++){
+      const closer = i <= lots - (b === 0 ? 1 : Math.ceil(lots * 0.3));
+      const failed = closer && ((i * 7 + b) % 9 === 0);
+      out.push({
+        batchName:name,
+        lotNumber:'LOT-' + String(i).padStart(3,'0'),
+        lotSize: i === lots ? (qty % CFG.lotSize || CFG.lotSize) : CFG.lotSize,
+        sampleSize:CFG.sampleSize,
+        bdMax:CFG.bdMaxMm,
+        status: closer ? 'Closed' : 'Open',
+        result: closer ? (failed ? 'FAIL' : 'PASS') : '',
+        batchQty:qty,
+        totalLots:lots,
+        model:m.model,
+        prodMonthCode:m.pmc,
+        prodMonthCode2:'',
+        fgPassQty: closer && !failed ? CFG.lotSize : 0,
+        minorCount: failed ? 2 : (closer && i % 3 === 0 ? 1 : 0),
+        majorCount: failed ? 1 : 0,
+        createdBy:'demo',
+        createdAt:'2026-06-' + String(10 + (i % 18)).padStart(2,'0') + 'T09:00:00.000Z'
+      });
+    }
+  }
+  return out;
+}
+
+function demoApi(action, body){
+  const ok = function(o){ return Object.assign({ ok:true }, o || {}); };
+  switch(action){
+    case 'login':
+      return ok({
+        username:body.username,
+        role: body.username === 'admin' ? 'admin' : 'inspector',
+        name: body.username === 'admin' ? 'Demo Admin' : 'Demo Inspector'
+      });
+    case 'getBatches':   return ok({ batches:demoBatches() });
+    case 'capabilities': return ok({ capabilities:{ validate:true, analytics:true,
+                                   units:true, photos:false, token:false } });
+    case 'checkSerial':  return ok({ exists:false });
+    case 'submitLot':    return ok({ verdict:body.clientVerdict || 'PASS',
+                                     fgPassQty:body.fgPassQty });
+    case 'createBatch':  return ok({ lotsCreated:Math.ceil(num(body.batchQty) / CFG.lotSize) });
+    case 'createKit':    return ok({ kitsCreated:1 });
+    case 'addUser':      return ok({});
+    case 'updateLot':
+    case 'deleteLot':
+    case 'deleteBatch':  return ok({});
+    default:
+      return { ok:false, error:'Unknown action: ' + action, code:'UNKNOWN_ACTION' };
+  }
+}
+
+/* ============================================================
+   START
+   ============================================================ */
+boot();
+</script>
+</body>
+</html>
